@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ "$#" -eq "0" ]; then
+    echo "You should provide the repository URL."
+    exit 1
+fi
+
+git clone $1 . >/dev/null
+~/.composer/vendor/bin/php-cs-fixer --diff --dry-run -v --format=xml fix src/ >/build/php-cs-fixer.xml

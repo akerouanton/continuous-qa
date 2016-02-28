@@ -1,0 +1,6 @@
+analyzer/node_modules/
+analyzer/Dockerfile
+artifact-api/Dockerfile
+build-api/vendor/
+build-api/Dockerfile
+front/Dockerfile
