@@ -7,10 +7,11 @@ RUN apt-get update \
     libssl-dev \
     zlib1g-dev \
   && rm -rf /var/lib/apt/lists/*
-RUN pecl install amqp-beta mongodb \
+RUN pecl install amqp-beta mongodb xdebug-beta \
   && docker-php-ext-install mbstring zip \
   && echo "extension=amqp.so" >> /usr/local/etc/php/php.ini \
-  && echo "extension=mongodb.so" >> /usr/local/etc/php/php.ini
+  && echo "extension=mongodb.so" >> /usr/local/etc/php/php.ini \
+  && echo "zend_extension/usr/local/lib/php/extensions/no-debug-non-zts-20151012/xdebug.so" >> /usr/local/etc/php/php.ini
 
 WORKDIR /usr/src/app/
 COPY composer.* /usr/src/app/

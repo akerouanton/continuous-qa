@@ -1,5 +1,8 @@
 const Promise = require('bluebird');
-const logger = require('../logger');
+const logger = require('./logger');
+const config = require ('../config');
+const request = require('request');
+const Readable = require('stream').Readable;
 
 module.exports = function Analysis(buildId, projectName, projectUrl, analyzer, runner) {
   this.containerId = null;
@@ -26,6 +29,18 @@ module.exports = function Analysis(buildId, projectName, projectUrl, analyzer, r
 
     return runner
       .fetchReports(containerName)
+      .then((reports) => {
+        return reports.forEach(function (el, reportName) {
+          return el.then((report) => {
+            const stream = new Readable();
+            stream._read = () => {};
+            stream.push(report);
+            stream.push(null);
+
+            return Promise.promisify(stream.pipe)(request.put(config.artifactEndpoint + '/' + buildId + '/' + reportName));
+          });
+        });
+      })
     ;
   };
 

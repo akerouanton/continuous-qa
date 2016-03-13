@@ -57,6 +57,10 @@ final class CreateBuildController
     }
 
     /**
+     * After middleware:
+     * will publish an amqp message in order to start the analysis,
+     * after the controller sent a 201 response
+     *
      * @param Request  $request
      * @param Response $response
      */
@@ -70,7 +74,7 @@ final class CreateBuildController
         $build = $request->attributes->get('build');
 
         foreach ($build->getAnalyses() as $analysis) {
-            $this->producer->publishMessage(json_encode($analysis), AMQP_NOPARAM, [], ['start_analysis']);
+            $this->producer->publishMessage(json_encode($analysis), AMQP_NOPARAM, [], ['run_analysis']);
         }
     }
 }

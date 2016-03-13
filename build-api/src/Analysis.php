@@ -86,7 +86,7 @@ class Analysis implements \JsonSerializable, \MongoDB\BSON\Persistable
      */
     public function bsonSerialize()
     {
-        return ['_id' => $this->_id] + $this->jsonSerialize();
+        return ['_id' => $this->_id, '__pclass' => new \MongoDB\BSON\Binary(self::class, 0x80)] + $this->jsonSerialize();
     }
 
     /**
@@ -94,9 +94,11 @@ class Analysis implements \JsonSerializable, \MongoDB\BSON\Persistable
      */
     public function bsonUnserialize(array $data)
     {
-        self::__construct($data['build_id'], $data['project_name'], $data['project_url'], $data['analyzer']);
-
-        $this->_id   = $data['_id'];
-        $this->state = $data['state'];
+        $this->_id         = $data['_id'];
+        $this->state       = $data['state'];
+        $this->buildId     = $data['build_id'];
+        $this->projectName = $data['project_name'];
+        $this->projectUrl  = $data['project_url'];
+        $this->analyzer    = $data['analyzer'];
     }
 }

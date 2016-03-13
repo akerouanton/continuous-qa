@@ -5,5 +5,6 @@ module.exports = {
   },
   docker: {
     socketPath: process.env.DOCKER_SOCKET || '/var/run/docker.sock'
-  }
+  },
+  artifactEndpoint: process.env.ARTIFACT_ENDPOINT || 'http://localhost/artifacts/'
 };

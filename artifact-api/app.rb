@@ -10,6 +10,8 @@ class ArtifactApi < Sinatra::Base
   register Sinatra::Namespace
 
   namespace '/artifacts' do
+    before { request.script_name = '/artifacts' }
+
     get '/:urn' do
       results = {}
 
@@ -46,6 +48,8 @@ class ArtifactApi < Sinatra::Base
           :contentType => contentType
         })
       end
+
+      200
     end
   end
 

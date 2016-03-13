@@ -4,6 +4,10 @@ WORKDIR /usr/src/app
 COPY ./package.json /usr/src/app/
 RUN npm install
 
-COPY ./ /src
-RUN chown -R 1000:1000 /usr/src/app/
-USER 1000
+COPY ./ /usr/src/app/
+RUN mkdir /home/analyzer \
+  && groupadd -g 999 docker \
+  && useradd -u 1000 -G docker analyzer \
+  && chown -R analyzer:analyzer /usr/src/app/ /home/analyzer
+
+USER analyzer

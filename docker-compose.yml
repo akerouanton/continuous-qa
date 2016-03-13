@@ -1,8 +1,5 @@
 rabbitmq:
   build: docker/rabbitmq
-  ports:
-    - "5672:5672"
-    - "15672:15672"
 
 analyzer:
   build: analyzer
@@ -12,26 +9,21 @@ analyzer:
     - "/tmp:/tmp"
   environment:
     - AMQP_HOST=continuousqa_rabbitmq_1
+    - ARTIFACT_ENDPOINT=http://continuousqa_nginx_1/artifacts
 
 mongodb:
   build: docker/mongodb
-  ports:
-    - "27017:27017"
 
 nginx:
   build: docker/nginx
   ports:
     - "80:80"
-  volumes_from:
-    - front
 
 build-api:
   build: build-api
   environment:
     - AMQP_HOST=continuousqa_rabbitmq_1
     - MONGO_URI=mongodb://continuousqa_mongodb_1:27017
-  volumes:
-    - "./build-api/:/usr/src/app/"
 
 artifact-api:
   build: artifact-api

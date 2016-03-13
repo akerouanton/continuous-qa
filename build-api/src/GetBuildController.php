@@ -24,7 +24,7 @@ final class GetBuildController
      */
     public function get(string $id)
     {
-        $build = $this->collection->findOne(['uuid' => $id], ['typeMap' => ['root' => 'Build']]);
+        $build = $this->collection->findOne(['uuid' => $id], ['typeMap' => ['root' => null]]);
 
         /** @var \MongoDB\Collection $collection */
         if (null === $build) {

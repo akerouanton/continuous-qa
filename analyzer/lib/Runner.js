@@ -1,7 +1,7 @@
 const Promise  = require('bluebird');
 const Docker   = require('dockerode');
 const fs       = require('fs');
-const logger   = require('../logger');
+const logger   = require('./logger');
 
 module.exports = function Runner(config) {
   const docker = Promise.promisifyAll(new Docker(config));
