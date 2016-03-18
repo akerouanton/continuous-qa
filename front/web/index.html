@@ -5,7 +5,12 @@
   </head>
 
   <body>
-    <form action="/builds/new" method="post">
+    <ul>
+      <li>Login with github: <a href="/connect/github">/connect/github</a></li>
+      <li>Profile: <a href="/profile">/profile</a></li>
+    </ul>
+
+    <form action="/build/new" method="post">
       <label for="repo_name">Repository name (eg. <i>KnpLabs/Gaufrette</i>)</label>:
       <input type="text" name="repo_name" id="repo_name" />
       <input type="submit" />

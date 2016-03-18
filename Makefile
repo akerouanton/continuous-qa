@@ -1,10 +1,10 @@
 BASE_REPO_NAME=continuousqa
 CONTAINERS=phpqa php-cs-fixer
 ENV=dev
-COMPOSE_FILE=docker-compose.dev.yml
+COMPOSE_FILE=docker/dev.yml
 
 ifneq (dev,$(ENV))
-	COMPOSE_FILE=docker-compose.yml
+	COMPOSE_FILE=docker/common.yml
 endif
 
 FIG=docker-compose --x-networking -p $(BASE_REPO_NAME) -f $(COMPOSE_FILE)
@@ -43,3 +43,8 @@ introspect:
 
 rm: stop
 	$(FIG) rm -vf $(CONTAINER)
+
+run:
+	$(FIG) run --entrypoint /bin/bash $(CONTAINER)
+
+reload: stop up

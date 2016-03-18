@@ -68,10 +68,10 @@ final class Application extends BaseApplication
 
     private function registerRoutes()
     {
-        $this->get('/builds/{id}', 'controller.get_build:get')->bind('get_build');
+        $this->get('/build/{id}', 'controller.get_build:get')->bind('get_build');
 
         $this
-            ->post('/builds/new', 'controller.create_build:create')
+            ->post('/build/new', 'controller.create_build:create')
             ->bind('create_build')
             ->after([$this['controller.create_build'], 'pushEvents'])
         ;

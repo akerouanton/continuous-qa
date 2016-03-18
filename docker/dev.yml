@@ -1,6 +1,6 @@
 rabbitmq:
   extends:
-    file: docker-compose.yml
+    file: common.yml
     service: rabbitmq
   ports:
     - "5672:5672"
@@ -8,41 +8,51 @@ rabbitmq:
 
 analyzer:
   extends:
-    file: docker-compose.yml
+    file: common.yml
     service: analyzer
   entrypoint: npm run dev-daemon
   volumes:
-    - "./analyzer/:/usr/src/app/"
+    - "../analyzer/:/usr/src/app/"
 
 mongodb:
   extends:
-    file: docker-compose.yml
+    file: common.yml
     service: mongodb
   ports:
     - "27017:27017"
 
 nginx:
   extends:
-    file: docker-compose.yml
+    file: common.yml
     service: nginx
   volumes_from:
     - front
+  volumes:
+    - "./nginx/nginx.conf:/etc/nginx/conf.d/default.conf"
 
 build-api:
   extends:
-    file: docker-compose.yml
+    file: common.yml
     service: build-api
   volumes:
-    - "./build-api/:/usr/src/app/"
+    - "../build-api/:/usr/src/app/"
 
 artifact-api:
   extends:
-    file: docker-compose.yml
+    file: common.yml
     service: artifact-api
   volumes:
-    - "./artifact-api/:/usr/src/app/"
+    - "../artifact-api/:/usr/src/app/"
 
 front:
   extends:
-    file: docker-compose.yml
+    file: common.yml
     service: front
+
+user-api:
+  extends:
+    file: common.yml
+    service: user-api
+  entrypoint: npm run dev-app
+  volumes:
+    - "../user-api/:/usr/src/app/"

@@ -39,6 +39,6 @@ const onMessageReceived = (message) => {
 };
 
 process.on('SIGTERM', () => {
-  connection.disconnect();
+  connection.disconnect(); // @TODO: debug this
   process.exit(0);
 });

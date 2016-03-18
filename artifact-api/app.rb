@@ -27,25 +27,25 @@ class ArtifactApi < Sinatra::Base
 
       unless doc.any?
         not_found
-      else
-        headers "Content-type" => doc[0][:contentType]
-        body doc[0][:file]
       end
+
+      headers "Content-type" => doc[0][:contentType]
+      body doc[0][:file]
     end
 
     put '/:urn/:filename' do
-      contentType = MimeMagic.by_magic(request.body).type
+      content_type = MimeMagic.by_magic(request.body).type
 
       doc = $mongoClient[:artifacts].find_one_and_replace(
         { :urn => params['urn'], :filename => params['filename'] },
-        { '$set' => { :file => request.body.string, :contentType => contentType } })
+        { '$set' => { :file => request.body.string, :contentType => content_type } })
 
       unless doc != nil
         $mongoClient[:artifacts].insert_one({
           :urn => params['urn'],
           :filename => params['filename'],
           :file => request.body.string,
-          :contentType => contentType
+          :contentType => content_type
         })
       end
 

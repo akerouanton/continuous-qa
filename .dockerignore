@@ -3,4 +3,6 @@ analyzer/Dockerfile
 artifact-api/Dockerfile
 build-api/vendor/
 build-api/Dockerfile
+user-api/node_modules/
+user-api/Dockerfile
 front/Dockerfile

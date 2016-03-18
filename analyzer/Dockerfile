@@ -11,3 +11,4 @@ RUN mkdir /home/analyzer \
   && chown -R analyzer:analyzer /usr/src/app/ /home/analyzer
 
 USER analyzer
+ENTRYPOINT npm run daemon
