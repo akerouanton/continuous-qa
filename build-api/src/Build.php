@@ -17,6 +17,9 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     private $uuid;
 
     /** @var string */
+    private $projectUrn;
+
+    /** @var string */
     private $projectName;
 
     /** @var string */
@@ -29,18 +32,21 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     private $analyzers;
 
     /**
+     * @param string   $projectUrn
      * @param string   $projectName
      * @param string   $projectUrl
      * @param string[] $analyzers
      */
-    private function __construct(string $projectName, string $projectUrl, array $analyzers)
+    private function __construct(string $projectUrn, string $projectName, string $projectUrl, array $analyzers)
     {
+        \Assert\that($projectUrn)->notEmpty();
         \Assert\that($projectName)->notEmpty();
         \Assert\that($projectUrl)->notEmpty();
         \Assert\that($analyzers)->notEmpty();
 
         $this->_id         = new \MongoDB\BSON\ObjectID();
         $this->uuid        = Uuid::uuid4();
+        $this->projectUrn  = $projectUrn;
         $this->projectName = $projectName;
         $this->projectUrl  = $projectUrl;
         $this->analyzers   = $analyzers;
@@ -51,16 +57,17 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     }
 
     /**
+     * @param string $projectUrn
      * @param string $repositoryName
      * @param array  $analyzers
      *
      * @return Build
      */
-    public static function createFromRepositoryName(string $repositoryName, array $analyzers): Build
+    public static function createFromRepositoryName(string $projectUrn, string $repositoryName, array $analyzers): Build
     {
         $projectUrl  = 'https://github.com/'.$repositoryName;
 
-        return new self($repositoryName, $projectUrl, $analyzers);
+        return new self($projectUrn, $repositoryName, $projectUrl, $analyzers);
     }
 
     /**
@@ -102,6 +109,7 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     {
         return [
             'uuid'         => $this->uuid->toString(),
+            'project_urn'  => $this->projectUrn,
             'project_name' => $this->projectName,
             'project_url'  => $this->projectUrl,
             'analyzers'    => $this->analyzers,
@@ -119,6 +127,7 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
         return [
             '_id'          => $this->_id,
             'uuid'         => $this->uuid->toString(),
+            'project_urn'  => $this->projectUrn,
             'project_name' => $this->projectName,
             'project_url'  => $this->projectUrl,
             'analyzers'    => $this->analyzers,
@@ -135,6 +144,7 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     {
         $this->_id         = (string) $data['_id'];
         $this->uuid        = Uuid::fromString($data['uuid']);
+        $this->projectUrn  = $data['project_urn'];
         $this->projectName = $data['project_name'];
         $this->projectUrl  = $data['project_url'];
         $this->analyzers   = array_values($data['analyzers']);

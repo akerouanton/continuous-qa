@@ -31,25 +31,26 @@ final class CreateBuildController
 
     /**
      * @param Request $request
+     * @param string  $projectUrn
      *
      * @return Response
      */
-    public function create(Request $request)
+    public function create(Request $request, string $projectUrn)
     {
-        $repoName = $request->get('repo_name');
+        $repoName = $request->request->get('repo_name');
 
         if (false === filter_var($repoName, FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => '#^[\d*\w*]+\/[\d*\w*]+$#']])) {
             return new Response('You should provide a valid repository name.', 400);
         }
 
-        $build = Build::createFromRepositoryName($repoName, ['phpqa', 'php-cs-fixer']);
+        $build = Build::createFromRepositoryName($projectUrn, $repoName, ['phpqa', 'php-cs-fixer']);
         $this->collection->insertOne($build);
 
         $request->attributes->set('build', $build);
 
         $location = $this->urlGenerator->generate(
             'get_build',
-            ['id' => $build->getUuid()->toString()],
+            ['projectUrn' => $projectUrn, 'buildId' => $build->getUuid()->toString()],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 

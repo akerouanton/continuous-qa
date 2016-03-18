@@ -64,14 +64,18 @@ final class Application extends BaseApplication
                 $this['url_generator']
             );
         });
+        $this['controller.get_builds_history'] = $this->share(function () {
+            return new GetBuildsHistoryController($this['mongo.build']);
+        });
     }
 
     private function registerRoutes()
     {
-        $this->get('/build/{id}', 'controller.get_build:get')->bind('get_build');
+        $this->get('/builds/{projectUrn}', 'controller.get_builds_history:getHistory')->bind('get_builds_history');
+        $this->get('/builds/{projectUrn}/{buildId}', 'controller.get_build:get')->bind('get_build');
 
         $this
-            ->post('/build/new', 'controller.create_build:create')
+            ->post('/builds/{projectUrn}/new', 'controller.create_build:create')
             ->bind('create_build')
             ->after([$this['controller.create_build'], 'pushEvents'])
         ;

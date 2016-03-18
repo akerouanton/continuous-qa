@@ -18,19 +18,23 @@ final class GetBuildController
     }
 
     /**
-     * @param string $id
+     * @param string $projectUrn
+     * @param string $buildId
      *
      * @return Response
      */
-    public function get(string $id)
+    public function get(string $projectUrn, string $buildId)
     {
-        $build = $this->collection->findOne(['uuid' => $id], ['typeMap' => ['root' => null]]);
+        $build = $this->collection->findOne(
+            ['project_urn' => $projectUrn, 'uuid' => $buildId],
+            ['typeMap' => ['root' => null]]
+        );
 
         /** @var \MongoDB\Collection $collection */
         if (null === $build) {
             return new Response('', 404);
         }
 
-        return new Response(json_encode($build), 201);
+        return new Response(json_encode($build), 200);
     }
 }

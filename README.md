@@ -27,10 +27,11 @@ No endpoint, but it consumes `run_analysis` queue. Messages should have this for
 
 ### Build API *(in php)*
 
-| Method | Endpoint   |
-|--------|------------|
-| GET    | /build/:id |
-| POST   | /build/new |
+| Method | Endpoint         |                                                              |
+|--------|------------------|--------------------------------------------------------------|
+| GET    | /builds/:urn     | `urn` should be any urn, but is expected to be a project urn |
+| GET    | /builds/:urn/:id |                                                              |
+| POST   | /builds/:urn/new |                                                              |
 
 ### Front
 
@@ -45,7 +46,7 @@ Currently it's only a flat html file.
 
 ## TODO
 
-  * Add build history
+  * Add statsd
   * Add tests _everywhere_
   * Add elixir gateway
   * Add front UI
