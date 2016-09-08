@@ -1,12 +1,17 @@
-import GithubClient from './GithubClient';
-import UserRepository from './UserRepository';
+import GithubClient from '../service/GithubClient';
+import UserRepository from '../service/UserRepository';
 
+/**
+ * @api {get} /connected OAuth redirect endpoint
+ * @apiName Connected
+ * @apiGroup user-api
+ * @apiVersion 0.1.0
+ * @apiError (401) UnauthenticatedError
+ */
 export default class {
-  static handle(req, res) {
+  static handle(req, res, next) {
     if (false === "grant" in req.session || false === "response" in req.session.grant) {
-      res.redirect("/");
-      res.end();
-
+      res.status(401).json({ error: 'UnauthenticatedError' });
       return;
     }
 
@@ -30,8 +35,11 @@ export default class {
       .then((user) => {
         req.session.githubId = user.githubId;
 
-        res.send(user.toObject());
+        res.json(user.toObject());
         res.end();
+      })
+      .catch((err) => {
+        next(err);
       })
     ;
   }

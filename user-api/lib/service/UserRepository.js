@@ -1,4 +1,4 @@
-import User from './User';
+import User from '../model/User';
 
 export default class {
   static createOrUpdate(profile) {

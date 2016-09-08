@@ -4,12 +4,11 @@ const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
 const Grant = require('grant-express');
 const morgan = require('morgan');
-const amqp = require('amqp');
+const logger = require('tracer').colorConsole();
 
-import ConnectedController from './ConnectedController';
-import EventDispatcher from './EventDispatcher';
-import ProfileController from './ProfileController';
-import UserListener from './UserListener';
+import ConnectedController from './controller/ConnectedController';
+import ProfileController from './controller/ProfileController';
+import DisconnectController from './controller/DisconnectController';
 
 export default class {
   constructor(config) {
@@ -36,21 +35,18 @@ export default class {
   bindRoutes() {
     this._express.get('/connected', ConnectedController.handle);
     this._express.get('/profile', ProfileController.handle);
+    this._express.get('/disconnect', DisconnectController.handle);
+
+    this._express.use((err, req, res) => {
+      logger.error(err.name, err.message);
+
+      res.sendStatus(500).end();
+    });
   }
 
   run() {
-    const connection = amqp.createConnection(this._config.amqp);
-
     this._express.listen(this._config.http_port, () => {
       console.log(`Start listening on port ${this._config.http_port}.`);
-    });
-
-    connection.on('ready', () => {
-      const exchange = connection.exchange('amq.direct');
-      exchange.on('open', () => {
-        console.log('Exchange ready.');
-        new UserListener(exchange);
-      });
     });
   }
 }

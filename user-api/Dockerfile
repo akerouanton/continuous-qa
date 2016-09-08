@@ -10,4 +10,5 @@ RUN mkdir /home/user-api \
   && chown -R user-api:user-api /home/user-api/ /usr/src/app/
 
 USER user-api
-ENTRYPOINT npm run app
+ENTRYPOINT ["npm", "run"]
+CMD ["app"]

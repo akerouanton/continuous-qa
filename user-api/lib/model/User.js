@@ -28,8 +28,4 @@ export const schema = new mongoose.Schema({
   }
 });
 
-schema.post('findOneAndUpdate', (user) => {
-  console.log('kikou2', user);
-});
-
 export default mongoose.model('User', schema);

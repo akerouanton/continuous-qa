@@ -1,10 +1,9 @@
-import UserRepository from './UserRepository';
+import UserRepository from '../service/UserRepository';
 
 export default class {
   static handle(req, res) {
     if (false === "githubId" in req.session) {
-      res.redirect("/connect/github")
-      res.end();
+      res.status(401).end();
       return;
     }
 
