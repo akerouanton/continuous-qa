@@ -1,9 +1,12 @@
-analyzer/node_modules/
-analyzer/Dockerfile
 artifact-api/Dockerfile
+artifact-api/node_modules/
 build-api/vendor/
 build-api/Dockerfile
 user-api/node_modules/
 user-api/Dockerfile
 front/Dockerfile
+node_modules/
+.git/
+.idea/
+runner-api/node_modules/
 docker-events/

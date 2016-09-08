@@ -1,15 +1,6 @@
 rabbitmq:
   build: rabbitmq
 
-analyzer:
-  build: ../analyzer
-  volumes:
-    - "/var/run/docker.sock:/var/run/docker.sock"
-    - "/tmp:/tmp"
-  environment:
-    - AMQP_HOST=continuousqa_rabbitmq_1
-    - ARTIFACT_ENDPOINT=http://continuousqa_nginx_1/artifacts
-
 mongodb:
   build: mongodb
 

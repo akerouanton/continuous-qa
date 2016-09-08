@@ -6,14 +6,6 @@ rabbitmq:
     - "5672:5672"
     - "15672:15672"
 
-analyzer:
-  extends:
-    file: common.yml
-    service: analyzer
-  entrypoint: npm run dev-daemon
-  volumes:
-    - "../analyzer/:/usr/src/app/"
-
 mongodb:
   extends:
     file: common.yml
