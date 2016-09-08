@@ -2,19 +2,17 @@
 
 declare(strict_types=1);
 
+namespace App\Model;
+
 use Ramsey\Uuid\Uuid;
 
 final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
 {
-    const STATE_CREATED  = 'created';
-    const STATE_RUNNING  = 'running';
-    const STATE_FINISHED = 'finished';
-
     /** @var mixed */
     private $_id;
 
     /** @var Uuid */
-    private $uuid;
+    private $id;
 
     /** @var string */
     private $projectUrn;
@@ -45,7 +43,7 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
         \Assert\that($analyzers)->notEmpty();
 
         $this->_id         = new \MongoDB\BSON\ObjectID();
-        $this->uuid        = Uuid::uuid4();
+        $this->id          = Uuid::uuid4();
         $this->projectUrn  = $projectUrn;
         $this->projectName = $projectName;
         $this->projectUrl  = $projectUrl;
@@ -73,9 +71,9 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     /**
      * @return Uuid
      */
-    public function getUuid(): Uuid
+    public function getId(): Uuid
     {
-        return $this->uuid;
+        return $this->id;
     }
 
     /**
@@ -108,7 +106,7 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     public function jsonSerialize(): array
     {
         return [
-            'uuid'         => $this->uuid->toString(),
+            'id'           => $this->id->toString(),
             'project_urn'  => $this->projectUrn,
             'project_name' => $this->projectName,
             'project_url'  => $this->projectUrl,
@@ -126,7 +124,7 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     {
         return [
             '_id'          => $this->_id,
-            'uuid'         => $this->uuid->toString(),
+            'id'           => $this->id->toString(),
             'project_urn'  => $this->projectUrn,
             'project_name' => $this->projectName,
             'project_url'  => $this->projectUrl,
@@ -143,7 +141,7 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     public function bsonUnserialize(array $data)
     {
         $this->_id         = (string) $data['_id'];
-        $this->uuid        = Uuid::fromString($data['uuid']);
+        $this->id          = Uuid::fromString($data['id']);
         $this->projectUrn  = $data['project_urn'];
         $this->projectName = $data['project_name'];
         $this->projectUrl  = $data['project_url'];

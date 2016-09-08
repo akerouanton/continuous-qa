@@ -13,12 +13,13 @@ RUN pecl install amqp-beta mongodb xdebug-beta \
   && docker-php-ext-install mbstring zip \
   && echo "extension=amqp.so" >> ${PHP_INI} \
   && echo "extension=mongodb.so" >> ${PHP_INI} \
-  && echo "zend_extension/usr/local/lib/php/extensions/no-debug-non-zts-20151012/xdebug.so" >> ${PHP_INI}
+  && echo "zend_extension/usr/local/lib/php/extensions/no-debug-non-zts-20151012/xdebug.so" >> ${PHP_INI} \
   && echo "xdebug.remote_connect_back=1" >> ${PHP_INI}
 
 WORKDIR /usr/src/app/
 COPY composer.* /usr/src/app/
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+  && composer global require --prefer-dist hirak/prestissimo \
   && composer install --no-dev --prefer-dist
 
 # Why does it contain ignored filed ?!
