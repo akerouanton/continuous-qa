@@ -34,6 +34,13 @@ user-api:
     - AMQP_HOST=continuousqa_rabbitmq_1
     - MONGO_URI=mongodb://continuousqa_mongodb_1:27017
 
+runner-api:
+  build: ../runner-api
+  expose: ['8000']
+  env_file: ../runner-api/.env
+  volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
+
 docker-events:
   build: ../docker-events
   env_file: ../docker-events/.env

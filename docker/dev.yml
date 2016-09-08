@@ -45,9 +45,17 @@ user-api:
   extends:
     file: common.yml
     service: user-api
-  entrypoint: npm run dev-app
+  command: dev-app
   volumes:
     - "../user-api/:/usr/src/app/"
+
+runner-api:
+  extends:
+    file: common.yml
+    service: runner-api
+  command: dev-app
+  volumes:
+    - "../runner-api/:/usr/src/app/"
 
 docker-events:
   extends:
