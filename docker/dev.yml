@@ -56,3 +56,11 @@ user-api:
   entrypoint: npm run dev-app
   volumes:
     - "../user-api/:/usr/src/app/"
+
+docker-events:
+  extends:
+    file: common.yml
+    service: docker-events
+  command: dev-app
+  volumes:
+    - "../docker-events/:/usr/src/app/"

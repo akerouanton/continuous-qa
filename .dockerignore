@@ -6,3 +6,4 @@ build-api/Dockerfile
 user-api/node_modules/
 user-api/Dockerfile
 front/Dockerfile
+docker-events/
