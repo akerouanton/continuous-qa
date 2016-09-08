@@ -1,0 +1,30 @@
+{
+  "name": "continuous-qa",
+  "version": "0.1.0",
+  "description": "Useful links:   * [RabbitMQ UI](http://localhost:15672/)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "apidoc": "^0.16.1",
+    "nodemon": "^1.10.2"
+  },
+  "scripts": {
+    "generate-doc": "./node_modules/.bin/apidoc -i artifact-api/lib -i build-api/src -i user-api/lib -i runner-api/lib -o docs",
+    "dev-generate-doc": "./node_modules/.bin/nodemon --exec npm run-script generate-doc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com:NiR-/continuous-qa"
+  },
+  "author": "Albin Kerouanton <albin.kerouanton@knplabs.com>",
+  "license": "MIT",
+  "apidoc": {
+    "name": "Continuous QA",
+    "version": "0.1.0",
+    "url": "http://localhost",
+    "sampleUrl": "http://localhost"
+  }
+}
