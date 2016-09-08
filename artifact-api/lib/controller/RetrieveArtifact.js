@@ -1,23 +1,46 @@
+import logger from '../Logger';
+import BucketParamValidator from '../BucketParamValidator';
+
+/**
+ * @api {get} /artifacts/:bucket/:filename Retrieve an artifact in a bucket
+ * @apiName RetrieveArtifact
+ * @apiGroup artifact-api
+ * @apiVersion 0.1.0
+ * @apiParam {String} bucket URN of the bucket
+ * @apiParam {String} filename Name of the artifact to retrieve
+ * @apiError (400) UrnNotValid           The bucket URN is not valid
+ * @apiError (404) ArtifactNotFoundError
+ */
 class Controller {
-  constructor(db) {
-    this._db =  db;
+  constructor(collection) {
+    this._collection =  collection;
   }
 
-  handle(req, res) {
+  handle(req, res, next) {
+    this._collection
+      .findOne({ bucket: req.params.bucket, filename: req.params.filename }, { _id: false, bucket: false, filename: false })
+      .then((artifact) => {
+        if (artifact === null) {
+          res.status(404).json({ error: 'ArtifactNotFoundError' });
+          return;
+        }
 
+        res
+          .status(200)
+          .set('Content-Type', artifact.mimeType)
+          .end(artifact.artifact.buffer)
+        ;
+      })
+      .catch((error) => {
+        next(error);
+      })
+    ;
   }
 }
 
-export default function(router, db) {
-  const controller = new Controller(db);
+export default function(router, collection) {
+  const controller = new Controller(collection);
 
-  /**
-   * @api {get} /:urn/:filename Retrieve a file
-   * @apiName RetrieveArtifact
-   * @apiGroup artifact-api
-   * @apiVersion 0.1.0
-   * @apiParam {String} urn URN of the bucket
-   * @apiParam {String} filename Name of the file to retrieve
-   */
-  router.get('/:urn/:filename', controller.handle);
+  router.get('/:bucket/:filename', controller.handle.bind(controller));
+  router.param('bucket', BucketParamValidator);
 }

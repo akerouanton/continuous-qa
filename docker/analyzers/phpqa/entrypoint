@@ -1,9 +1,8 @@
 #!/bin/bash
 
-if [ "$#" -eq "0" ]; then
-    echo "You should provide the repository URL."
-    exit 1
-fi
+set -o nounset
+set -o errexit
+set -o verbose
 
-git clone $1 . >/dev/null
-~/.composer/vendor/bin/phpqa --analyzedDir /src/src --buildDir /build --report
+git clone ${REPO_URL} .
+~/.composer/vendor/bin/phpqa --analyzedDir /src/src --buildDir /artifacts --report

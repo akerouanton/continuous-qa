@@ -4,12 +4,12 @@ import ListArtifacts from './controller/ListArtifacts';
 import RetrieveArtifact from './controller/RetrieveArtifact';
 import PutArtifact from './controller/PutArtifact';
 
-export default (db) => {
+export default (collection) => {
   const router = express.Router();
 
-  ListArtifacts(router, db);
-  RetrieveArtifact(router, db);
-  PutArtifact(router, db);
+  ListArtifacts(router, collection);
+  RetrieveArtifact(router, collection);
+  PutArtifact(router, collection);
 
   return router;
 };

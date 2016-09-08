@@ -1,4 +1,4 @@
-FROM node:5-slim
+FROM node:6.5-slim
 
 RUN apt-get update && \
   apt-get install -y --no-install-recommends libmagic-dev python build-essential && \
@@ -14,4 +14,5 @@ RUN mkdir /home/artifact-api \
   && chown -R artifact-api:artifact-api /home/artifact-api/ /usr/src/app/
 
 USER artifact-api
-ENTRYPOINT npm run app
+ENTRYPOINT ["npm", "run"]
+CMD ["app"]

@@ -9,8 +9,8 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install zip xsl \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && mkdir -p /home/analyzer/.composer /src /build \
-    && useradd analyzer && chown -R analyzer:analyzer /home/analyzer /src /build
+    && mkdir -p /home/analyzer/.composer /src /artifacts \
+    && useradd analyzer && chown -R analyzer:analyzer /home/analyzer /src /artifacts
 
 WORKDIR /src
 COPY ./entrypoint /entrypoint
@@ -18,6 +18,7 @@ RUN chmod +x /entrypoint
 ENTRYPOINT ["/entrypoint"]
 
 USER analyzer
-RUN composer global require edgedesign/phpqa
+RUN composer global require --prefer-dist hirak/prestissimo \
+  && composer global require --prefer-dist edgedesign/phpqa
 
-VOLUME ["/build"]
+VOLUME ["/artifacts"]
