@@ -25,18 +25,20 @@ export default class {
 
     this._connection.queue('start_runner', { durable: true, autoDelete: false }, (queue) => {
       queue.bind(this._config.exchange, 'build.created');
-      logger.info('Queue declared, binding done.');
+      logger.info('Queue "start_runner" declared, binding done.');
 
-      queue.subscribe({ ack: true }, (message, headers, deliveryInfo, messageObject) => {
-        logger.info('New message received.');
+      queue.subscribe({ ack: true }, (message) => {
+        logger.info('New message received.', message);
+
         this._emitter.emit('buildCreated', message);
       });
 
-      this._emitter.on('runnersCreated', () => {
+      this._emitter.on('runnersStarted', () => {
         queue.shift(false, false);
       });
       this._emitter.on('error', (err) => {
         logger.warn(err);
+
         queue.shift(true, false);
       });
     });

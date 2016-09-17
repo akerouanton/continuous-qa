@@ -59,7 +59,7 @@ run:
 
 reload: stop up
 
-BUILD_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' build-api/.env)
+BUILD_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/build-api/.env)
 drop-databases:
 	$(FIG) exec mongodb mongo $(BUILD_API_DBNAME) --eval "db.dropDatabase()"
 
@@ -74,3 +74,10 @@ mongo-restore: drop-databases
 
 tests-e2e:
 	cd build-api && vendor/bin/behat
+
+ARTIFACTS_TMP_DIR=$(shell awk -F= '/TMP_DIR/ {print $$2}' services/runner-api/.env)
+cleanup:
+	-docker ps -a -f "label=com.continuousqa.runner" | tail -n+2 | awk '{print $$1}' | xargs docker rm -vf 2>/dev/null
+ifneq (,$(ARTIFACTS_TMP_DIR))
+	-rm -rf $(ARTIFACTS_TMP_DIR)/*
+endif

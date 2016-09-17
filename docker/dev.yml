@@ -91,13 +91,13 @@ services:
       - "../services/runner-gc/:/usr/src/app/"
       - "/tmp/continuousqa/artifacts/:/tmp/"
 
-  runner-consumer:
+  build-consumer:
     extends:
       file: common.yml
-      service: runner-consumer
+      service: build-consumer
     command: dev-app
     volumes:
-      - "../services/runner-consumer/:/usr/src/app/"
+      - "../services/build-consumer/:/usr/src/app/"
 
   docker-events:
     extends:

@@ -11,5 +11,6 @@ new App({
     port: process.env.AMQP_PORT || 5672,
     exchange: process.env.AMQP_EXCHANGE || 'amq.topic'
   },
-  runnerEndpoint: process.env.RUNNER_ENDPOINT || error('RUNNER_ENDPOINT should be defined.')
+  runnerEndpoint: process.env.RUNNER_ENDPOINT || error('RUNNER_ENDPOINT should be defined.'),
+  buildEndpoint: process.env.BUILD_ENDPOINT || error('BUILD_ENDPOINT should be defined.')
 }).run();
