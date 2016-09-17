@@ -2,8 +2,11 @@ const express = require('express');
 const morgan = require('morgan');
 const MongoClient = require('mongodb').MongoClient;
 
-import router from './Router';
 import logger from './Logger';
+import ListArtifacts from './controller/ListArtifacts';
+import PutArtifact from './controller/PutArtifact';
+import RetrieveArtifact from './controller/RetrieveArtifact';
+import BucketParamValidator from './BucketParamValidator';
 
 export default class {
   constructor(config) {
@@ -31,9 +34,17 @@ export default class {
   }
 
   finishBoot() {
+    const collection = this._db.collection('artifacts');
+    const putArtifact = new PutArtifact(collection);
+    const retrieveArtifact = new RetrieveArtifact(collection);
+    const listArtifacts = new ListArtifacts(collection);
+
     this._express = express();
     this._express.use(morgan('combined'));
-    this._express.use('/artifacts', router(this._db.collection('artifacts')));
+    this._express.put('/artifact/:bucket/:filename', putArtifact.handle.bind(putArtifact));
+    this._express.get('/artifact/:bucket/:filename', retrieveArtifact.handle.bind(retrieveArtifact));
+    this._express.get('/artifacts/:bucket', listArtifacts.handle.bind(listArtifacts));
+    this._express.param('bucket', BucketParamValidator);
     this._express.use((err, req, res) => {
       logger.error(err.name, err.message);
 

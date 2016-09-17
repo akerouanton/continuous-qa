@@ -4,11 +4,12 @@ export default class {
   constructor(emitter, config) {
     this._emitter = emitter;
     this._docker = new Docker({ socketPath: config.socketPath });
+    this._config = config;
   }
 
   listenEvents() {
     const now = Math.floor(new Date().getTime() / 1000);
-    const filters = {'event': ['die', 'kill', 'start', 'stop']};
+    const filters = {'event': ['die', 'start'], 'label': [this._config.containerLabel]};
 
     this._docker.getEvents({since: now, filters: filters}, (err, stream) => {
       if (err) {

@@ -12,7 +12,7 @@ import BucketParamValidator from '../BucketParamValidator';
  * @apiError (400) UrnNotValid         The bucket URN is not valid
  * @apiError (404) BucketNotFoundError This :bucket does not exists
  */
-class Controller {
+export default class {
   constructor(collection) {
     this._collection = collection;
   }
@@ -36,11 +36,4 @@ class Controller {
       })
     ;
   }
-}
-
-export default function (router, collection) {
-  const controller = new Controller(collection);
-
-  router.get('/:bucket', controller.handle.bind(controller));
-  router.param('bucket', BucketParamValidator)
 }

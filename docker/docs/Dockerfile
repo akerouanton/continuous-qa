@@ -7,8 +7,8 @@ COPY ./package.json /usr/src/app/
 RUN npm install
 
 COPY . /usr/src/app/
-RUN npm run-script generate-doc
+RUN npm run-script generate-docs
 
 VOLUME ["/usr/src/app/docs"]
 ENTRYPOINT ["npm", "run-script"]
-CMD ["generate-doc"]
+CMD ["generate-docs"]

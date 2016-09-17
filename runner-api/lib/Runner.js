@@ -1,32 +1,43 @@
 const Promise = require('bluebird');
+const os = require('os');
 
 import logger from './Logger';
 
 export default class Runner {
-  constructor(docker) {
+  constructor(docker, config) {
     this._docker = docker;
+    this._config = config;
   }
 
   static normalizeContainerName(name) {
     return name
-      .replace(new RegExp("[^a-zA-Z0-9_]", "g"), "")
+      .replace(new RegExp("[^a-zA-Z0-9]", "g"), "")
       .replace('/', '_')
       .toLowerCase()
     ;
   }
 
-  static normalizeLabels(labels) {
+  normalizeLabels(labels) {
     const normalized = {};
 
     for (let label in labels) {
-      normalized[`com.continuousqa.${label}`] = labels[label];
+      normalized[`${this._config.labelPrefix}.${label}`] = labels[label];
     }
 
     return normalized;
   }
 
-  createContainer(name, image, repoUrl, metadata) {
+  createContainer(name, image, repoUrl, mountPoint, metadata) {
     const normalizedName = Runner.normalizeContainerName(name);
+    metadata.mountPoint = mountPoint;
+    metadata.runner = 'true';
+    metadata.containerName = name;
+
+    logger.info('Creating new container for ' + name + '.', {
+      name: name,
+      normalizedName: normalizedName,
+      mountPoint: mountPoint
+    });
 
     return this._docker
       .createContainerAsync({
@@ -35,15 +46,24 @@ export default class Runner {
         Env: [
           'REPO_URL=' + repoUrl
         ],
-        Labels: Runner.normalizeLabels(metadata)
+        Labels: this.normalizeLabels(metadata),
+        HostConfig: {
+          Binds: [
+            mountPoint + ':/artifacts/'
+          ]
+        }
       })
     ;
   }
 
   startContainer(container) {
+    return container.startAsync();
+  }
+
+  stopContainer(containerName) {
     return Promise
-      .promisifyAll(container)
-      .startAsync()
+      .promisifyAll(this._docker.getContainer(containerName))
+      .stopAsync()
     ;
   }
 }

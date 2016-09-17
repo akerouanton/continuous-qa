@@ -19,7 +19,7 @@ RUN chmod +x /entrypoint
 ENTRYPOINT ["/entrypoint"]
 
 USER analyzer
-RUN composer global requi --prefer-dist hirak/prestissimo \
+RUN composer global require --prefer-dist hirak/prestissimo \
   && composer global require --prefer-dist fabpot/php-cs-fixer
 
 VOLUME ["/artifacts"]

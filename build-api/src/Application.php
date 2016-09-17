@@ -7,14 +7,17 @@ namespace App;
 use App\Controller\CreateBuildController;
 use App\Controller\GetBuildController;
 use App\Controller\GetBuildHistoryController;
+use App\Controller\UpdateAnalysisStateController;
+use App\Service\BuildRepository;
+use App\Service\ProjectRepository;
 use IztokSvetik\SilexAmqp\Provider\AmqpServiceProvider;
 use Silex\Application as BaseApplication;
 use Silex\Provider\MonologServiceProvider;
 
 final class Application extends BaseApplication
 {
-    const PROJECT_URN_REGEX = 'urn:gh:[a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+';
-    const BUILD_ID_REGEX = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+    const PROJECT_URN_REGEX = 'urn:gh:[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+';
+    const BUILD_URN_REGEX = self::PROJECT_URN_REGEX.':\d+';
 
     public function __construct($debug = false, array $config)
     {
@@ -30,8 +33,6 @@ final class Application extends BaseApplication
 
     private function registerServices()
     {
-        $this->register(new \Silex\Provider\UrlGeneratorServiceProvider());
-
         $this->register(new AmqpServiceProvider(), [
             'amqp.connections' => [
                 'default' => $this['config']['amqp'] + ['lazy' => true],
@@ -40,9 +41,9 @@ final class Application extends BaseApplication
                 'build' => [
                     'connection'       => 'default',
                     'exchange_options' => [
-                        'name' => 'amq.direct',
-                        'type' => 'direct',
-                        'publish_attributes' => ['content_type' => 'application/json', 'delivery_mode' => 2],
+                        'name' => 'amq.topic',
+                        'type' => 'topic',
+                        'publish_attributes' => ['content_type' => 'application/json'],
                     ],
                 ],
             ],
@@ -53,51 +54,58 @@ final class Application extends BaseApplication
         };
 
         $this['mongo'] = self::share(function () {
-            return (new \MongoDB\Client($this['config']['mongo']['uri']))
-                ->selectDatabase($this['config']['mongo']['database'])
-            ;
+            $config = $this['config']['mongo'];
+            return (new \MongoDB\Client($config['uri']))->selectDatabase($config['database']);
         });
-        $this['mongo.build'] = self::share(function () {
-            return $this['mongo']->selectCollection('build');
+        $this['mongo.projects'] = self::share(function () {
+            return $this['mongo']->selectCollection('projects');
+        });
+        $this['mongo.builds'] = self::share(function () {
+            return $this['mongo']->selectCollection('builds');
         });
 
         $this->register(new \Silex\Provider\ServiceControllerServiceProvider());
         $this['controller.get_build'] = self::share(function () {
-            return new GetBuildController($this['mongo.build']);
+            return new GetBuildController($this['mongo.builds']);
         });
         $this['controller.create_build'] = self::share(function () {
             return new CreateBuildController(
-                $this['mongo.build'],
-                $this['amqp.producer']['build'],
-                $this['url_generator']
+                new BuildRepository($this['mongo.builds'], new ProjectRepository($this['mongo.projects'])),
+                $this['amqp.producer']['build']
             );
         });
         $this['controller.get_build_history'] = self::share(function () {
-            return new GetBuildHistoryController($this['mongo.build']);
+            return new GetBuildHistoryController($this['mongo.builds']);
+        });
+        $this['controller.update_analysis_state'] = self::share(function () {
+            return new UpdateAnalysisStateController($this['mongo.builds']);
         });
     }
 
     private function registerRoutes()
     {
         $this
-            ->get('/builds/{projectUrn}', 'controller.get_builds_history:getHistory')
+            ->get('/builds/{projectUrn}', 'controller.get_build_history:getHistory')
             ->bind('get_build_history')
             ->addRequirements(['projectUrn' => self::PROJECT_URN_REGEX])
         ;
         $this
-            ->get('/builds/{projectUrn}/{buildId}', 'controller.get_build:get')
-            ->bind('get_build')
-            ->addRequirements([
-                'projectUrn' => self::PROJECT_URN_REGEX,
-                'buildId'    => self::BUILD_ID_REGEX,
-            ])
-        ;
-
-        $this
             ->post('/builds/{projectUrn}/new', 'controller.create_build:create')
             ->bind('create_build')
-            ->addRequirements(['projectUrn' => self::PROJECT_URN_REGEX])
             ->after([$this['controller.create_build'], 'pushEvents'])
+            ->addRequirements(['projectUrn' => self::PROJECT_URN_REGEX])
+        ;
+        $this
+            ->get('/build/{buildUrn}', 'controller.get_build:get')
+            ->bind('get_build')
+            ->addRequirements(['buildUrn' => self::BUILD_URN_REGEX])
+        ;
+        $this
+            ->patch('/build/{buildUrn}/{analyzer}', 'controller.update_analysis_state:update')
+            ->bind('update_build_analysis')
+            ->addRequirements([
+                'buildUrn' => self::BUILD_URN_REGEX
+            ])
         ;
     }
 

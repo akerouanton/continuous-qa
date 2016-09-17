@@ -1,8 +1,10 @@
 #!/bin/bash
 
+#set -o xtrace
 set -o nounset
 set -o errexit
 set -o verbose
 
+echo "Cloning ${REPO_URL} into $(pwd)"
 git clone ${REPO_URL} .
 ~/.composer/vendor/bin/phpqa --analyzedDir /src/src --buildDir /artifacts --report

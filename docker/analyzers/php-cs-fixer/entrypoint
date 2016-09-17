@@ -1,8 +1,10 @@
 #!/bin/bash
 
+#set -o xtrace
 set -o nounset
 set -o errexit
 set -o verbose
 
+echo "Cloning ${REPO_URL} into $(pwd)"
 git clone ${REPO_URL} .
 ~/.composer/vendor/bin/php-cs-fixer --diff --dry-run -v --format=xml fix src/ >/artifacts/php-cs-fixer.xml

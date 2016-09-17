@@ -2,7 +2,7 @@ import logger from '../Logger';
 import BucketParamValidator from '../BucketParamValidator';
 
 /**
- * @api {get} /artifacts/:bucket/:filename Retrieve an artifact in a bucket
+ * @api {get} /artifact/:bucket/:filename Retrieve an artifact in a bucket
  * @apiName RetrieveArtifact
  * @apiGroup artifact-api
  * @apiVersion 0.1.0
@@ -11,7 +11,7 @@ import BucketParamValidator from '../BucketParamValidator';
  * @apiError (400) UrnNotValid           The bucket URN is not valid
  * @apiError (404) ArtifactNotFoundError
  */
-class Controller {
+export default class {
   constructor(collection) {
     this._collection =  collection;
   }
@@ -36,11 +36,4 @@ class Controller {
       })
     ;
   }
-}
-
-export default function(router, collection) {
-  const controller = new Controller(collection);
-
-  router.get('/:bucket/:filename', controller.handle.bind(controller));
-  router.param('bucket', BucketParamValidator);
 }

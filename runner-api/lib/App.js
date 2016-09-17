@@ -4,26 +4,27 @@ const Docker = require('dockerode');
 const logger = require('tracer').colorConsole();
 const bodyParser = require('body-parser');
 const Promise = require('bluebird');
+const crypto = require('crypto');
+const fs = require('fs');
+const mkdir = Promise.promisify(fs.mkdir);
+const chown = Promise.promisify(fs.chown);
 
 import Runner from './Runner';
 
 /**
- * @api {put} /runner/:projectUrn/:analyzer/start Start a new run
+ * @api {post} /runner/:buildUrn/:analyzer/start Start a new run
  * @apiName StartRun
  * @apiGroup runner-api
  * @apiVersion 0.1.0
- * @apiParam {String} projectUrn URN of the project
+ * @apiParam {String} buildUrn   Build URN
  * @apiParam {String} analyzer   Either <code>php-cs-fixer</code> or <code>phpqa</code>
  * @apiParam {String} repoUrl    URL of the repository to clone
- * @apiParam {String} buildId    ID of the build
- * @apiParamExample Request Example:
- *     projectUrn = urn:gh:knplabs/gaufrette
+ * @apiParamExample Parameters Example
+ *     buildUrn = urn:gh:knplabs/gaufrette:30
  *     analyzer = php-cs-fixer
  *     repoUrl = https://github.com/KnpLabs/Gaufrette
- *     buildId = 12345678-1234-5678-1234-567812345678
- * @apiError (400) UrnNotValid          The project URN is not valid
+ * @apiError (400) UrnNotValid          The build URN is not valid
  * @apiError (400) MissingRepoUrl       <code>repoUrl</code> is missing
- * @apiError (400) MissingBuildId       <code>buildId</code> is missing
  * @apiError (409) RunnerAlreadyCreated
  */
 export default class {
@@ -35,17 +36,25 @@ export default class {
 
   boot() {
     this._docker = Promise.promisifyAll(new Docker(this._config.docker));
-    this._runner = new Runner(this._docker);
+    this._runner = new Runner(this._docker, {labelPrefix: this._config.labelPrefix});
 
     this._express = express();
     this._express.use(morgan('combined'));
     this._express.use(bodyParser.json());
     this._express.use(bodyParser.urlencoded({ extended: false }));
-    this._express.put('/runner/:projectUrn/:analyzer/start', this.handleRequest.bind(this));
-    this._express.use((err, req, res) => {
+    this._express.post('/runner/:buildUrn/:analyzer/start', this.handleRequest.bind(this));
+    this._express.param('buildUrn', (req, res, next, urn) => {
+      if (/^urn:gh:[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+:\d+/.test(urn)) {
+        next();
+        return;
+      }
+
+      res.status(400).json({error: 'UrnNotValid'});
+    });
+    this._express.use((err, req, res, next) => { // 'next' mandatory, must not remove
       logger.error(err.name, err.message);
 
-      res.sendStatus(500).end();
+      res.status(500).end();
     });
   }
 
@@ -56,10 +65,10 @@ export default class {
   }
 
   handleRequest(req, res, next) {
-    const matches = /^urn:gh:([a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+)$/.exec(req.params.projectUrn);
+    const buildUrn = req.params.buildUrn;
+    const matches = /^urn:(gh:[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+:\d+)$/.exec(buildUrn);
     const analyzer = req.params.analyzer;
     const repoUrl = req.body.repoUrl || null;
-    const buildId = req.body.buildId || null;
 
     if (matches === null) {
       res.status(400).json({ error: 'UrnNotValid' });
@@ -69,24 +78,34 @@ export default class {
       res.status(400).json({ error: 'MissingRepoUrl' });
       return;
     }
-    if (buildId === null) {
-      res.status(400).json({ error: 'MissingBuildId' });
-      return;
-    }
 
-    const projectName = matches[1];
-    this._runner
-      .createContainer(projectName, analyzer, repoUrl, {
-        project: projectName,
-        buildId: buildId,
-        analyzer: analyzer,
-        repoUrl: repoUrl
+    const digest = crypto
+      .createHash('sha1')
+      .update(matches[1]+'_'+analyzer)
+      .digest('hex')
+    ;
+    const artifactDirectory = `${this._config.tmpDir}/${digest}`;
+
+    this
+      .createArtifactDirectory(artifactDirectory)
+      .then(() => {
+        return this
+          ._runner
+          .createContainer(digest, analyzer, repoUrl, artifactDirectory, {
+            buildUrn: buildUrn,
+            analyzer: analyzer,
+            repoUrl: repoUrl
+          })
+        ;
       })
-      .then(this._runner.startContainer)
+      .then((container) => {
+        return this._runner.startContainer(container);
+      })
       .then(() => {
         res.sendStatus(200).end();
       })
       .catch((err) => {
+        // Docker daemon may return '409 Conflict'
         if ('statusCode' in err && err.statusCode == 409) {
           res.status(409).json({ error: 'RunnerAlreadyCreated'});
           return;
@@ -95,5 +114,11 @@ export default class {
         next(err);
       })
     ;
+  }
+
+  createArtifactDirectory(artifactDirectory) {
+    return mkdir(artifactDirectory).then(() => {
+      return chown(artifactDirectory, 1000, 1000);
+    });
   }
 }

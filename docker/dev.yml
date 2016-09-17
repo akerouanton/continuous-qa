@@ -1,73 +1,107 @@
-rabbitmq:
-  extends:
-    file: common.yml
-    service: rabbitmq
-  ports:
-    - "5672:5672"
-    - "15672:15672"
+version: '2'
 
-mongodb:
-  extends:
-    file: common.yml
-    service: mongodb
-  ports:
-    - "27017:27017"
+services:
+  rabbitmq:
+    extends:
+      file: common.yml
+      service: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
-nginx:
-  extends:
-    file: common.yml
-    service: nginx
-  volumes_from:
-    - front
-    - docs
-  volumes:
-    - "./nginx/nginx.conf:/etc/nginx/conf.d/default.conf"
+  mongodb:
+    extends:
+      file: common.yml
+      service: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - "../build-api/fixtures/:/fixtures/build-api/"
+      - "./dumps/:/dumps/"
 
-docs:
-  build: ..
-  dockerfile: docker/docs/Dockerfile
-  restart: never
-  command: ["dev-generate-doc"]
+  nginx:
+    extends:
+      file: common.yml
+      service: nginx
+    volumes_from:
+      - front
+    volumes:
+      - "./nginx/nginx.conf:/etc/nginx/conf.d/default.conf"
+      - "../docs/:/usr/src/app/docs"
 
-build-api:
-  extends:
-    file: common.yml
-    service: build-api
-  volumes:
-    - "../build-api/:/usr/src/app/"
+  docs:
+    build:
+      context: ..
+      dockerfile: docker/docs/Dockerfile
+    restart: never
+    command: ["dev-generate-docs"]
+    volumes:
+      - "../:/usr/src/app"
+      - "../docs:/usr/src/app/docs"
 
-artifact-api:
-  extends:
-    file: common.yml
-    service: artifact-api
-  volumes:
-    - "../artifact-api/:/usr/src/app/"
+  build-api:
+    extends:
+      file: common.yml
+      service: build-api
+    volumes:
+      - "../build-api/:/usr/src/app/"
+    environment:
+      - MONGO_CONTAINER=continuousqa_mongodb_1
 
-front:
-  extends:
-    file: common.yml
-    service: front
+  artifact-api:
+    extends:
+      file: common.yml
+      service: artifact-api
+    command: dev-app
+    volumes:
+      - "../artifact-api/bin:/usr/src/app/bin/"
+      - "../artifact-api/lib:/usr/src/app/lib/"
+    ports:
+      - '8000:8000'
 
-user-api:
-  extends:
-    file: common.yml
-    service: user-api
-  command: dev-app
-  volumes:
-    - "../user-api/:/usr/src/app/"
+  front:
+    extends:
+      file: common.yml
+      service: front
 
-runner-api:
-  extends:
-    file: common.yml
-    service: runner-api
-  command: dev-app
-  volumes:
-    - "../runner-api/:/usr/src/app/"
+  user-api:
+    extends:
+      file: common.yml
+      service: user-api
+    command: dev-app
+    volumes:
+      - "../user-api/:/usr/src/app/"
 
-docker-events:
-  extends:
-    file: common.yml
-    service: docker-events
-  command: dev-app
-  volumes:
-    - "../docker-events/:/usr/src/app/"
+  runner-api:
+    extends:
+      file: common.yml
+      service: runner-api
+    command: dev-app
+    volumes:
+      - "../runner-api/:/usr/src/app/"
+      - "/tmp/continuousqa/artifacts/:/tmp/continuousqa/artifacts/"
+
+  runner-gc:
+    extends:
+      file: common.yml
+      service: runner-gc
+    command: dev-app
+    volumes:
+      - "../runner-gc/:/usr/src/app/"
+      - "/tmp/continuousqa/artifacts/:/tmp/"
+
+  runner-consumer:
+    extends:
+      file: common.yml
+      service: runner-consumer
+    command: dev-app
+    volumes:
+      - "../runner-consumer/:/usr/src/app/"
+
+  docker-events:
+    extends:
+      file: common.yml
+      service: docker-events
+    command: dev-app
+    volumes:
+      - "../docker-events/:/usr/src/app/"

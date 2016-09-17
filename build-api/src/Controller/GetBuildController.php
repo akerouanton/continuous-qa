@@ -4,22 +4,25 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 /**
- * @api {get} /builds/:projectUrn/:buildId Get a specific build for a project
+ * @api {get} /build/:buildUrn Get a specific build
  * @apiName GetBuild
  * @apiGroup build-api
  * @apiVersion 0.1.0
- * @apiParam {String} projectUrn URN of the project
- * @apiParam {String} buildId Id of the build
- * @apiSuccess {String}   id                  Build UUID
- * @apiSuccess {String}   project_urn           Project URN
- * @apiSuccess {String}   project_name          Project name
- * @apiSuccess {String}   project_url           Repository URL
- * @apiSuccess {String[]} analyzers             List of analyzers used for this build
- * @apiSuccess {Object[]} analyses              List of analyses
- * @apiSuccess {String}   analyses.analyzer     Analyzer name
- * @apiSuccess {String}   analyses.state        One of: <code>created</code>, <code>queued</code>, <code>running</code>, <code>finished</code>, <code>erroneous</code>
+ * @apiParam {String} buildUrn URN of the build
+ * @apiParamExample Parameters Example
+ *     buildUrn = urn:gh:knplabs/gaufrette:1
+ * @apiSuccess {String}   state             Build state (either <code>started</code> or <code>finished</code>)
+ * @apiSuccess {String}   urn               Build URN
+ * @apiSuccess {String}   projectUrn       Project URN
+ * @apiSuccess {String}   repoUrl          Repository URL
+ * @apiSuccess {String[]} analyzers         List of analyzers used for this build
+ * @apiSuccess {Object[]} analyses          List of analyses
+ * @apiSuccess {String}   analyses.analyzer Analyzer name
+ * @apiSuccess {String}   analyses.state    One of: <code>created</code>, <code>queued</code>, <code>running</code>, <code>finished</code>, <code>erroneous</code>
+ * @apiError (404) BuildNotFound
  */
 final class GetBuildController
 {
@@ -35,23 +38,18 @@ final class GetBuildController
     }
 
     /**
-     * @param string $projectUrn
-     * @param string $buildId
+     * @param string $buildUrn
      *
-     * @return Response
+     * @return JsonResponse
      */
-    public function get(string $projectUrn, string $buildId)
+    public function get(string $buildUrn)
     {
-        $build = $this->collection->findOne(
-            ['project_urn' => $projectUrn, 'id' => $buildId],
-            ['typeMap' => ['root' => null]]
-        );
+        $build = $this->collection->findOne(['urn' => $buildUrn]);
 
-        /** @var \MongoDB\Collection $collection */
         if (null === $build) {
-            return new Response('', 404);
+            return new JsonResponse(['error' => 'BuildNotFound'], 404);
         }
 
-        return new Response(json_encode($build), 200);
+        return new JsonResponse($build, 200);
     }
 }

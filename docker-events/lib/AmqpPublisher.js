@@ -38,10 +38,13 @@ export default class AmqpPublisher {
       throw new Error('AmqpPublisher not ready to handle events: exchange not available.');
     }
 
+    logger.info(event);
+
     const key = event.Type + '.' + event.Action;
     const message = JSON.stringify({
       containerId: event.Actor.ID,
-      containerMetadata: event.Actor.Attributes
+      event: event.Action,
+      metadata: event.Actor.Attributes
     });
 
     logger.info('AMQP message published with binding key "' + key + '".');

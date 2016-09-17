@@ -7,6 +7,7 @@ new App({
     exchange: process.env.AMQP_EXCHANGE || 'amq.topic'
   },
   docker: {
-    socketPath: process.env.DOCKER_SOCKET || '/var/run/docker.sock'
+    socketPath: process.env.DOCKER_SOCKET || '/var/run/docker.sock',
+    containerLabel: process.env.CONTAINER_LABEL || 'com.continuousqa.runner'
   }
 });

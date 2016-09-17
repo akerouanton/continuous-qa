@@ -18,6 +18,6 @@ return [
     ],
     'mongo' => [
         'uri'      => getenv_or_default('MONGO_URI', 'mongodb://localhost:27017'),
-        'database' => getenv_or_default('MONGO_DBNAME', 'build'),
+        'database' => getenv_or_default('MONGO_DBNAME', 'builds'),
     ],
 ];

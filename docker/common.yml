@@ -1,48 +1,58 @@
-rabbitmq:
-  build: rabbitmq
+version: '2'
 
-mongodb:
-  build: mongodb
+services:
+  rabbitmq:
+    build: rabbitmq
 
-nginx:
-  build: nginx
-  ports:
-    - "80:80"
+  mongodb:
+    build: mongodb
 
-build-api:
-  build: ../build-api
-  environment:
-    - AMQP_HOST=continuousqa_rabbitmq_1
-    - MONGO_URI=mongodb://continuousqa_mongodb_1:27017
+  nginx:
+    build: nginx
+    ports:
+      - "80:80"
 
-artifact-api:
-  build: ../artifact-api
-  expose: ['8000']
-  environment:
-    - MONGO_HOST_PORT=continuousqa_mongodb_1:27017
+  build-api:
+    build: ../build-api
+    env_file: ../build-api/.env
 
-front:
-  build: ../front
-  volumes:
-    - "../front/web/:/var/www/app/"
+  artifact-api:
+    build: ../artifact-api
+    env_file: ../artifact-api/.env
+    expose: ['8000']
+    environment:
+      - MONGO_HOST_PORT=continuousqa_mongodb_1:27017
 
-user-api:
-  build: ../user-api
-  expose: ['3000']
-  env_file: ../user-api/.env
-  environment:
-    - AMQP_HOST=continuousqa_rabbitmq_1
-    - MONGO_URI=mongodb://continuousqa_mongodb_1:27017
+  front:
+    build: ../front
+    volumes:
+      - "../front/web/:/var/www/app/"
 
-runner-api:
-  build: ../runner-api
-  expose: ['8000']
-  env_file: ../runner-api/.env
-  volumes:
-    - "/var/run/docker.sock:/var/run/docker.sock"
+  user-api:
+    build: ../user-api
+    expose: ['3000']
+    env_file: ../user-api/.env
+    environment:
+      - AMQP_HOST=continuousqa_rabbitmq_1
+      - MONGO_URI=mongodb://continuousqa_mongodb_1:27017
 
-docker-events:
-  build: ../docker-events
-  env_file: ../docker-events/.env
-  volumes:
-    - "/var/run/docker.sock:/var/run/docker.sock"
+  runner-api:
+    build: ../runner-api
+    expose: ['8000']
+    env_file: ../runner-api/.env
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  runner-gc:
+    build: ../runner-gc
+    env_file: ../runner-gc/.env
+
+  runner-consumer:
+    build: ../runner-consumer
+    env_file: ../runner-consumer/.env
+
+  docker-events:
+    build: ../docker-events
+    env_file: ../docker-events/.env
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"

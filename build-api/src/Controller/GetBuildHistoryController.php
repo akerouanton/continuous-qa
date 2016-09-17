@@ -5,23 +5,24 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use MongoDB\Collection;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * @api {get} /builds/:projectUrn Build history for a project
+ * @api {get} /builds/:projectUrn Get builds for a project
  * @apiName GetBuildsHistory
  * @apiGroup build-api
  * @apiVersion 0.1.0
- * @apiParam {String} project URN of the project
- * @apiSuccess {Object[]} builds                       List of builds for the :projectUrn
- * @apiSuccess {String}   builds.id                  Build UUID
- * @apiSuccess {String}   builds.project_urn           Project URN
- * @apiSuccess {String}   builds.project_name          Project name
- * @apiSuccess {String}   builds.project_url           Repository URL
- * @apiSuccess {String[]} builds.analyzers             List of analyzers used for this build
- * @apiSuccess {Object[]} builds.analyses              List of analyses
- * @apiSuccess {String}   builds.analyses.analyzer     Analyzer name
- * @apiSuccess {String}   builds.analyses.state        One of: <code>created</code>, <code>queued</code>, <code>running</code>, <code>finished</code>, <code>erroneous</code>
+ * @apiParam {String} projectUrn URN of the project
+ * @apiParamExample Parameter Example
+ *     projectUrn = urn:gh:knplabs/gaufrette
+ * @apiSuccess {String}   state             Build state (either <code>started</code> or <code>finished</code>)
+ * @apiSuccess {String}   urn               Build URN
+ * @apiSuccess {String}   projectUrn       Project URN
+ * @apiSuccess {String}   repoUrl          Repository URL
+ * @apiSuccess {String[]} analyzers         List of analyzers used for this build
+ * @apiSuccess {Object[]} analyses          List of analyses
+ * @apiSuccess {String}   analyses.analyzer Analyzer name
+ * @apiSuccess {String}   analyses.state    One of: <code>created</code>, <code>queued</code>, <code>running</code>, <code>finished</code>, <code>erroneous</code>
  */
 final class GetBuildHistoryController
 {
@@ -39,12 +40,12 @@ final class GetBuildHistoryController
     /**
      * @param string $projectUrn
      *
-     * @return Response
+     * @return JsonResponse
      */
     public function getHistory(string $projectUrn)
     {
-        $builds = $this->collection->find(['project' => $projectUrn], ['typeMap' => ['root' => null]]);
+        $builds = $this->collection->find(['projectUrn' => $projectUrn], ['typeMap' => ['root' => null]])->toArray();
 
-        return new Response(json_encode($builds));
+        return new JsonResponse($builds);
     }
 }

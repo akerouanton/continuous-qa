@@ -9,4 +9,7 @@ node_modules/
 .git/
 .idea/
 runner-api/node_modules/
+runner-consumer/node_modules/
+runner-gc/node_modules/
 docker-events/
+docker/dumps/builds

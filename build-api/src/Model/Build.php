@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use Ramsey\Uuid\Uuid;
+use MongoDB\Model\BSONArray;
 
 final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
 {
+    const STATE_STARTED  = 'started';
+    const STATE_FINISHED = 'finished';
+
     /** @var mixed */
     private $_id;
 
-    /** @var Uuid */
-    private $id;
+    /** @var string */
+    private $urn;
 
     /** @var string */
     private $projectUrn;
 
     /** @var string */
-    private $projectName;
-
-    /** @var string */
-    private $projectUrl;
+    private $repoUrl;
 
     /** @var Analysis[] */
     private $analyses;
@@ -29,67 +29,55 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     /** @var string[] */
     private $analyzers;
 
+    /** @var string */
+    private $state;
+
     /**
+     * @param int      $buildId
      * @param string   $projectUrn
-     * @param string   $projectName
-     * @param string   $projectUrl
+     * @param string   $repoUrl
      * @param string[] $analyzers
      */
-    private function __construct(string $projectUrn, string $projectName, string $projectUrl, array $analyzers)
+    public function __construct(int $buildId, string $projectUrn, string $repoUrl, array $analyzers)
     {
         \Assert\that($projectUrn)->notEmpty();
-        \Assert\that($projectName)->notEmpty();
-        \Assert\that($projectUrl)->notEmpty();
+        \Assert\that($repoUrl)->notEmpty();
         \Assert\that($analyzers)->notEmpty();
 
-        $this->_id         = new \MongoDB\BSON\ObjectID();
-        $this->id          = Uuid::uuid4();
-        $this->projectUrn  = $projectUrn;
-        $this->projectName = $projectName;
-        $this->projectUrl  = $projectUrl;
-        $this->analyzers   = $analyzers;
+        $this->_id        = new \MongoDB\BSON\ObjectID();
+        $this->urn        = sprintf('%s:%s', $projectUrn, $buildId);
+        $this->projectUrn = $projectUrn;
+        $this->repoUrl    = $repoUrl;
+        $this->analyzers  = $analyzers;
+        $this->state      = self::STATE_STARTED;
 
         foreach ($analyzers as $analyzer) {
-            $this->analyses[] = Analysis::start($this, $analyzer);
+            $this->analyses[] = new Analysis($analyzer);
         }
     }
 
     /**
-     * @param string $projectUrn
-     * @param string $repositoryName
-     * @param array  $analyzers
-     *
-     * @return Build
+     * @return string
      */
-    public static function createFromRepositoryName(string $projectUrn, string $repositoryName, array $analyzers): Build
+    public function getUrn(): string
     {
-        $projectUrl  = 'https://github.com/'.$repositoryName;
-
-        return new self($projectUrn, $repositoryName, $projectUrl, $analyzers);
-    }
-
-    /**
-     * @return Uuid
-     */
-    public function getId(): Uuid
-    {
-        return $this->id;
+        return $this->urn;
     }
 
     /**
      * @return string
      */
-    public function getProjectName(): string
+    public function getProjectUrn(): string
     {
-        return $this->projectName;
+        return $this->projectUrn;
     }
 
     /**
      * @return string
      */
-    public function getProjectUrl(): string
+    public function getRepoUrl(): string
     {
-        return $this->projectUrl;
+        return $this->repoUrl;
     }
 
     /**
@@ -101,17 +89,50 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     }
 
     /**
+     * @param string $analyzer
+     * @param string $state
+     */
+    public function changeAnalysisState(string $analyzer, string $state)
+    {
+        $this->getAnalysis($analyzer)->changeState($state);
+
+        $unfinished = array_filter($this->analyses, function (Analysis $analysis) {
+            return in_array($analysis->getState(), [Analysis::STATE_CREATED, Analysis::STATE_RUNNING]);
+        });
+
+        if (count($unfinished) === 0) {
+            $this->state = self::STATE_FINISHED;
+        }
+    }
+
+    /**
+     * @param string $analyzer
+     *
+     * @return Analysis
+     */
+    private function getAnalysis(string $analyzer): Analysis
+    {
+        foreach ($this->analyses as $analysis) {
+            if ($analysis->getAnalyzer() === $analyzer) {
+                return $analysis;
+            }
+        }
+
+        throw new \RuntimeException(sprintf('There are no analysis using "%s".', $analyzer));
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function jsonSerialize(): array
     {
         return [
-            'id'           => $this->id->toString(),
-            'project_urn'  => $this->projectUrn,
-            'project_name' => $this->projectName,
-            'project_url'  => $this->projectUrl,
-            'analyzers'    => $this->analyzers,
-            'analyses'     => array_map(function (Analysis $analysis) {
+            'state'       => $this->state,
+            'urn'         => $this->urn,
+            'projectUrn' => $this->projectUrn,
+            'repoUrl'    => $this->repoUrl,
+            'analyzers'   => $this->analyzers,
+            'analyses'    => array_map(function (Analysis $analysis) {
                 return $analysis->jsonSerialize();
             }, $this->analyses),
         ];
@@ -123,13 +144,13 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     public function bsonSerialize(): array
     {
         return [
-            '_id'          => $this->_id,
-            'id'           => $this->id->toString(),
-            'project_urn'  => $this->projectUrn,
-            'project_name' => $this->projectName,
-            'project_url'  => $this->projectUrl,
-            'analyzers'    => $this->analyzers,
-            'analyses'     => array_map(function (Analysis $analysis) {
+            '_id'         => $this->_id,
+            'state'       => $this->state,
+            'urn'         => $this->urn,
+            'projectUrn' => $this->projectUrn,
+            'repoUrl'    => $this->repoUrl,
+            'analyzers'   => $this->analyzers,
+            'analyses'    => array_map(function (Analysis $analysis) {
                 return $analysis->bsonSerialize();
             }, $this->analyses),
         ];
@@ -140,12 +161,16 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
      */
     public function bsonUnserialize(array $data)
     {
-        $this->_id         = (string) $data['_id'];
-        $this->id          = Uuid::fromString($data['id']);
-        $this->projectUrn  = $data['project_urn'];
-        $this->projectName = $data['project_name'];
-        $this->projectUrl  = $data['project_url'];
-        $this->analyzers   = array_values($data['analyzers']);
-        $this->analyses    = $data['analyses'];
+        $this->_id        = (string) $data['_id'];
+        $this->state      = $data['state'];
+        $this->urn        = $data['urn'];
+        $this->projectUrn = $data['projectUrn'];
+        $this->repoUrl    = $data['repoUrl'];
+        $this->analyzers  = array_values((array) $data['analyzers']);
+        $this->analyses   = $data['analyses'];
+
+        if ($this->analyses instanceof BSONArray) {
+            $this->analyses = $this->analyses->getIterator()->getArrayCopy();
+        }
     }
 }

@@ -8,7 +8,7 @@ import {ArtifactAlreadyExistsError,EmptyUploadError} from '../Exceptions';
 import BucketParamValidator from '../BucketParamValidator';
 
 /**
- * @api {put} /artifacts/:bucket/:filename Put a new artifact in a bucket
+ * @api {put} /artifact/:bucket/:filename Put a new artifact in a bucket
  * @apiName PutArtifact
  * @apiGroup artifact-api
  * @apiVersion 0.1.0
@@ -19,7 +19,7 @@ import BucketParamValidator from '../BucketParamValidator';
  * @apiError (400) EmptyUploadError           No file in the "artifact" key
  * @apiError (400) ArtifactAlreadyExistsError An artifact with the same name was already attached to this :bucket
  */
-class Controller {
+export default class {
   constructor(collection) {
     this._collection = collection;
     this._uploader   = Promise.denodeify(multer({ storage: multer.memoryStorage() }).single('artifact'));
@@ -49,7 +49,7 @@ class Controller {
         return this._magic_detect(req.file.buffer);
       })
       .then((mimeType) => {
-        return collection.insertOne({
+        return this._collection.insertOne({
           bucket: bucket,
           filename: filename,
           mimeType: mimeType,
@@ -72,11 +72,4 @@ class Controller {
       })
     ;
   }
-}
-
-export default function (router, collection) {
-  const controller = new Controller(collection);
-
-  router.put('/:bucket/:filename', controller.handle.bind(controller));
-  router.param('bucket', BucketParamValidator);
 }

@@ -1,0 +1,10 @@
+default:
+    suites:
+        default:
+            contexts:
+                - Knp\FriendlyContexts\Context\ApiContext
+                - Context\DbContext
+    extensions:
+        Knp\FriendlyContexts\Extension:
+            api:
+                base_url: 'http://localhost/'
