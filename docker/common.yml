@@ -13,46 +13,46 @@ services:
       - "80:80"
 
   build-api:
-    build: ../build-api
-    env_file: ../build-api/.env
+    build: ../services/build-api
+    env_file: ../services/build-api/.env
 
   artifact-api:
-    build: ../artifact-api
-    env_file: ../artifact-api/.env
+    build: ../services/artifact-api
+    env_file: ../services/artifact-api/.env
     expose: ['8000']
     environment:
       - MONGO_HOST_PORT=continuousqa_mongodb_1:27017
 
   front:
-    build: ../front
+    build: ../services/front
     volumes:
-      - "../front/web/:/var/www/app/"
+      - "../services/front/web/:/var/www/app/"
 
   user-api:
-    build: ../user-api
+    build: ../services/user-api
     expose: ['3000']
-    env_file: ../user-api/.env
+    env_file: ../services/user-api/.env
     environment:
       - AMQP_HOST=continuousqa_rabbitmq_1
       - MONGO_URI=mongodb://continuousqa_mongodb_1:27017
 
   runner-api:
-    build: ../runner-api
+    build: ../services/runner-api
     expose: ['8000']
-    env_file: ../runner-api/.env
+    env_file: ../services/runner-api/.env
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
 
   runner-gc:
-    build: ../runner-gc
-    env_file: ../runner-gc/.env
+    build: ../services/runner-gc
+    env_file: ../services/runner-gc/.env
 
   runner-consumer:
-    build: ../runner-consumer
-    env_file: ../runner-consumer/.env
+    build: ../services/runner-consumer
+    env_file: ../services/runner-consumer/.env
 
   docker-events:
-    build: ../docker-events
-    env_file: ../docker-events/.env
+    build: ../services/docker-events
+    env_file: ../services/docker-events/.env
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"

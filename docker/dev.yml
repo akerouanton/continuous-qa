@@ -16,7 +16,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - "../build-api/fixtures/:/fixtures/build-api/"
+      - "../services/build-api/fixtures/:/fixtures/build-api/"
       - "./dumps/:/dumps/"
 
   nginx:
@@ -25,6 +25,7 @@ services:
       service: nginx
     volumes_from:
       - front
+      - docs
     volumes:
       - "./nginx/nginx.conf:/etc/nginx/conf.d/default.conf"
       - "../docs/:/usr/src/app/docs"
@@ -36,7 +37,7 @@ services:
     restart: never
     command: ["dev-generate-docs"]
     volumes:
-      - "../:/usr/src/app"
+      - "..:/usr/src/app"
       - "../docs:/usr/src/app/docs"
 
   build-api:
@@ -44,7 +45,7 @@ services:
       file: common.yml
       service: build-api
     volumes:
-      - "../build-api/:/usr/src/app/"
+      - "../services/build-api/:/usr/src/app/"
     environment:
       - MONGO_CONTAINER=continuousqa_mongodb_1
 
@@ -54,8 +55,8 @@ services:
       service: artifact-api
     command: dev-app
     volumes:
-      - "../artifact-api/bin:/usr/src/app/bin/"
-      - "../artifact-api/lib:/usr/src/app/lib/"
+      - "../services/artifact-api/bin:/usr/src/app/bin/"
+      - "../services/artifact-api/lib:/usr/src/app/lib/"
     ports:
       - '8000:8000'
 
@@ -70,7 +71,7 @@ services:
       service: user-api
     command: dev-app
     volumes:
-      - "../user-api/:/usr/src/app/"
+      - "../services/user-api/:/usr/src/app/"
 
   runner-api:
     extends:
@@ -78,7 +79,7 @@ services:
       service: runner-api
     command: dev-app
     volumes:
-      - "../runner-api/:/usr/src/app/"
+      - "../services/runner-api/:/usr/src/app/"
       - "/tmp/continuousqa/artifacts/:/tmp/continuousqa/artifacts/"
 
   runner-gc:
@@ -87,7 +88,7 @@ services:
       service: runner-gc
     command: dev-app
     volumes:
-      - "../runner-gc/:/usr/src/app/"
+      - "../services/runner-gc/:/usr/src/app/"
       - "/tmp/continuousqa/artifacts/:/tmp/"
 
   runner-consumer:
@@ -96,7 +97,7 @@ services:
       service: runner-consumer
     command: dev-app
     volumes:
-      - "../runner-consumer/:/usr/src/app/"
+      - "../services/runner-consumer/:/usr/src/app/"
 
   docker-events:
     extends:
@@ -104,4 +105,4 @@ services:
       service: docker-events
     command: dev-app
     volumes:
-      - "../docker-events/:/usr/src/app/"
+      - "../services/docker-events/:/usr/src/app/"
