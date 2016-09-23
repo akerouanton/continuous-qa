@@ -24,7 +24,7 @@ export default class {
     logger.info('AMQP connection ready.');
 
     this._connection.queue('runner_gc', { durable: true }, (queue) => {
-      queue.bind(this._config.exchange, 'container.die');
+      queue.bind(this._config.exchange, 'runner.die');
       logger.info('Queue declared, binding done.');
 
       queue.subscribe({ ack: true }, (message) => {
@@ -39,8 +39,8 @@ export default class {
 
         queue.shift(false, false);
       });
-      this._emitter.on('error', () => {
-        logger.warn('An error happened while processing a message.', arguments);
+      this._emitter.on('error', (err) => {
+        logger.warn('An error happened while processing a message.', err);
 
         queue.shift(true, false);
       });

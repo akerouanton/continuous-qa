@@ -5,6 +5,7 @@ const Promise = require('promise');
 const request = require('request');
 const patch = Promise.denodeify(request.patch);
 const put = Promise.denodeify(request.put);
+const post = Promise.denodeify(request.post);
 const fs = require('fs');
 const readdir = Promise.denodeify(fs.readdir);
 const assert = require('assert');
@@ -27,26 +28,18 @@ export default class {
 
   onRunnerDie(event) {
     const data = {
-      containerId: event.containerId || null,
+      name: event.metadata[`${this._config.labelPrefix}.runnerName`] || null,
       buildUrn: event.metadata[`${this._config.labelPrefix}.buildUrn`] || null,
       analyzer: event.metadata[`${this._config.labelPrefix}.analyzer`] || null,
       mountPoint: event.metadata[`${this._config.labelPrefix}.mountPoint`] || null,
-      containerName: event.metadata[`${this._config.labelPrefix}.containerName`] || null,
       exitCode: event.metadata['exitCode'] || null
     };
 
     try {
       for (let key in data) {
-        logger.debug('Key', key, 'Val', data[key]);
         assert(data[key]);
       }
     } catch (err) {
-      logger.debug('Assertion failed', {
-        error: err,
-        data: data,
-        event: event
-      });
-
       this._emitter.emit('error', {
         message: 'Message incomplete.',
         event: event
@@ -62,7 +55,7 @@ export default class {
         return this.uploadArtifacts(runner);
       })
       .then(() => {
-        return this.dropContainer(runner);
+        return this.dropRunner(runner);
       })
       .catch(err => {
         this._emitter.emit('error', err);
@@ -75,7 +68,8 @@ export default class {
   }
 
   updateBuildStatus(runner) {
-    const url = this._config.buildEndpoint + '/' + encodeURIComponent(runner.buildUrn) + '/' + runner.analyzer;
+    const buildUrn = encodeURIComponent(runner.buildUrn);
+    const url = `${this._config.buildEndpoint}/${buildUrn}/${runner.analyzer}`;
     const state = parseInt(runner.exitCode) === 0 ? 'succeeded' : 'failed';
 
     logger.info('Updating build status.', { buildUrn: runner.buildUrn, url: url, state: state });
@@ -93,9 +87,9 @@ export default class {
 
   uploadArtifacts(runner) {
     const bucket = encodeURIComponent(runner.buildUrn + ':' + runner.analyzer);
-    var artifactDirectory = `${this._config.artifactsTmpDir}/${runner.containerName}`;
+    var artifactDirectory = `${this._config.artifactsTmpDir}/${runner.name}`;
 
-    logger.info('Looking for artifacts at ' + artifactDirectory, runner);
+    logger.info('Looking for artifacts at ' + artifactDirectory);
 
     return readdir(artifactDirectory)
       .then(files => {
@@ -104,17 +98,14 @@ export default class {
         logger.info('Sending artifacts.', {bucket: bucket, artifacts: files});
 
         for (let file of files) {
-          const url = this._config.artifactEndpoint + '/' + bucket + '/' + file;
+          const url = `${this._config.artifactEndpoint}/${bucket}/${file}`;
           const path = `${artifactDirectory}/${file}`;
 
           var artifact = fs.createReadStream(path);
           promises.push(
             put({url: url, formData: {artifact: artifact}}).then((response) => {
               if (response.statusCode !== 200) {
-                throw new Error(
-                  'An error occured while uploading artifacts.',
-                  {url: url, statusCode: response.statusCode,  body: response.body}
-                );
+                throw new Error('An error occurred while uploading artifacts.');
               }
             })
           );
@@ -123,13 +114,28 @@ export default class {
         return Promise
           .all(promises)
           .then(() => {
-            logger.info('Artifacts sent.', {bucket: bucket, artifacts: files});
+            logger.debug('Artifacts sent.', {bucket: bucket, artifacts: files});
           })
         ;
       })
     ;
   }
 
-  dropContainer(event) {
+  dropRunner(runner) {
+    logger.info(`Dropping runner "${runner.buildUrn}:${runner.analyzer}.`);
+
+    const buildUrn = encodeURIComponent(runner.buildUrn);
+    const url = `${this._config.runnerEndpoint}/${buildUrn}/${runner.analyzer}/drop`;
+
+    return post({url: url}).then((response) => {
+      if (response.statusCode !== 200) {
+        throw new Error(
+          'An error occurred while dropping runner.',
+          {url: url, runner: runner}
+        );
+      }
+
+      logger.debug(`Runner "${runner.buildUrn}:${runner.analyzer} dropped.`);
+    });
   }
 }
