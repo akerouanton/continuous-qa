@@ -1,3 +1,9 @@
+.git/
+.idea/
+docker/
+docs/
+dumps/
+node_modules/
 services/artifact-api/Dockerfile
 services/artifact-api/node_modules/
 services/build-api/vendor/
@@ -13,8 +19,3 @@ services/runner-gc/node_modules/
 services/runner-gc/Dockerfile
 services/user-api/node_modules/
 services/user-api/Dockerfile
-node_modules/
-docs/
-.git/
-.idea/
-docker/

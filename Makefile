@@ -42,6 +42,8 @@ up:
 stop:
 	$(FIG) stop $(CONTAINER)
 
+halt: stop
+
 ps:
 	$(FIG) ps $(CONTAINER)
 
@@ -58,6 +60,8 @@ run:
 	$(FIG) run --entrypoint /bin/bash $(CONTAINER)
 
 reload: stop up
+
+restart: reload
 
 BUILD_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/build-api/.env)
 drop-databases:
@@ -83,3 +87,7 @@ ifneq (,$(ARTIFACTS_TMP_DIR))
 endif
 
 cleanup: rm cleanup-runner
+
+install: build
+	for file in services/**/.env.dist; do (test -f $${file%.dist} || cp $$file $${file%.dist}); done
+	$(MAKE) up load-fixtures
