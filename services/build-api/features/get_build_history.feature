@@ -16,6 +16,7 @@ Feature: Retrieve build history
                 "urn": "urn:gh:knplabs\/gaufrette:1",
                 "projectUrn": "urn:gh:knplabs\/gaufrette",
                 "repoUrl": "https:\/\/github.com\/knplabs\/gaufrette",
+                "reference": "master",
                 "analyzers": ["php-cs-fixer", "phpqa"],
                 "analyses": [
                     {
@@ -33,6 +34,7 @@ Feature: Retrieve build history
                 "urn": "urn:gh:knplabs\/gaufrette:2",
                 "projectUrn": "urn:gh:knplabs\/gaufrette",
                 "repoUrl": "https:\/\/github.com\/knplabs\/gaufrette",
+                "reference": "develop",
                 "analyzers": ["php-cs-fixer", "phpqa"],
                 "analyses": [
                     {

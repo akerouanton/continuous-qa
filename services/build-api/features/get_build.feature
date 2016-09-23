@@ -15,6 +15,7 @@ Feature: Retrieve a specific build
               "urn": "urn:gh:knplabs\/gaufrette:1",
               "projectUrn": "urn:gh:knplabs\/gaufrette",
               "repoUrl": "https:\/\/github.com\/knplabs\/gaufrette",
+              "reference": "master",
               "analyzers": ["php-cs-fixer", "phpqa"],
               "analyses": [
                   {

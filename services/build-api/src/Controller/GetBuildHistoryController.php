@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use MongoDB\Collection;
+use App\Service\BuildRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -17,8 +17,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  *     projectUrn = urn:gh:knplabs/gaufrette
  * @apiSuccess {String}   state             Build state (either <code>started</code> or <code>finished</code>)
  * @apiSuccess {String}   urn               Build URN
- * @apiSuccess {String}   projectUrn       Project URN
- * @apiSuccess {String}   repoUrl          Repository URL
+ * @apiSuccess {String}   projectUrn        Project URN
+ * @apiSuccess {String}   repoUrl           Repository URL
+ * @apiSuccess {String}   reference         Commit/branch/tag reference
  * @apiSuccess {String[]} analyzers         List of analyzers used for this build
  * @apiSuccess {Object[]} analyses          List of analyses
  * @apiSuccess {String}   analyses.analyzer Analyzer name
@@ -26,15 +27,15 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 final class GetBuildHistoryController
 {
-    /** @var Collection */
-    private $collection;
+    /** @var BuildRepository */
+    private $repository;
 
     /**
-     * @param Collection $collection
+     * @param BuildRepository $repository
      */
-    public function __construct(Collection $collection)
+    public function __construct(BuildRepository $repository)
     {
-        $this->collection = $collection;
+        $this->repository = $repository;
     }
 
     /**
@@ -44,8 +45,6 @@ final class GetBuildHistoryController
      */
     public function getHistory(string $projectUrn)
     {
-        $builds = $this->collection->find(['projectUrn' => $projectUrn], ['typeMap' => ['root' => null]])->toArray();
-
-        return new JsonResponse($builds);
+        return new JsonResponse($this->repository->findAll($projectUrn));
     }
 }

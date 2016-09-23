@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Exception\AnalysisNotFoundException;
+use App\Exception\BuildNotFoundException;
 use App\Model\Analysis;
-use App\Model\Build;
+use App\Service\BuildRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -19,28 +21,29 @@ use Symfony\Component\HttpFoundation\Request;
  *     buildUrn = urn:gh:knplabs/gaufrette:2
  *     analyzer = php-cs-fixer
  *     state = failed
- * @apiSuccess (201) {String}   state             Build state (either <code>started</code> or <code>finished</code>)
- * @apiSuccess (201) {String}   urn               Build URN
- * @apiSuccess (201) {String}   projectUrn       Project URN
- * @apiSuccess (201) {String}   repoUrl          Repository URL
- * @apiSuccess (201) {String[]} analyzers         List of analyzers used for this build
- * @apiSuccess (201) {Object[]} analyses          List of analyses
- * @apiSuccess (201) {String}   analyses.analyzer Analyzer name
- * @apiSuccess (201) {String}   analyses.state    One of: <code>created</code>, <code>queued</code>, <code>running</code>, <code>finished</code>, <code>erroneous</code>
+ * @apiSuccess (200) {String}   state             Build state (either <code>started</code> or <code>finished</code>)
+ * @apiSuccess (200) {String}   urn               Build URN
+ * @apiSuccess (200) {String}   projectUrn        Project URN
+ * @apiSuccess (200) {String}   repoUrl           Repository URL
+ * @apiSuccess (200) {String}   reference         Commit/branch/tag reference
+ * @apiSuccess (200) {String[]} analyzers         List of analyzers used for this build
+ * @apiSuccess (200) {Object[]} analyses          List of analyses
+ * @apiSuccess (200) {String}   analyses.analyzer Analyzer name
+ * @apiSuccess (200) {String}   analyses.state    One of: <code>created</code>, <code>queued</code>, <code>running</code>, <code>finished</code>, <code>erroneous</code>
  * @apiError (400) InvalidState
- * @apiError (404) BuildNotFound
  * @apiError (404) AnalysisNotFound
  */
 class UpdateAnalysisStateController
 {
-    private $collection;
+    /** @var BuildRepository */
+    private $repository;
 
     /**
-     * @param \MongoDB\Collection $collection
+     * @param BuildRepository $repository
      */
-    public function __construct(\MongoDB\Collection $collection)
+    public function __construct(BuildRepository $repository)
     {
-        $this->collection = $collection;
+        $this->repository = $repository;
     }
 
     /**
@@ -53,31 +56,14 @@ class UpdateAnalysisStateController
     public function update(Request $request, string $buildUrn, string $analyzer)
     {
         if (null === ($state = $request->request->get('state')) || !in_array($state, Analysis::STATES)) {
-            return new JsonResponse([
-                'error' => 'InvalidState',
-            ], 400);
+            return new JsonResponse(['error' => 'InvalidState'], 400);
         }
 
-        if (null === $build = $this->collection->findOne(['urn' => $buildUrn])) {
-            return new JsonResponse(['error' => 'BuildNotFound'], 404);
-        }
-
-        $query = [
-            'urn' => $buildUrn,
-            'analyses' => [
-                '$elemMatch' => [
-                    "analyzer" => $analyzer,
-                ],
-            ],
-        ];
-        /** @var Build|null $build */
-        $build = $this->collection->findOneAndUpdate($query, ['$set' => ["analyses.$.state" => $state]]);
-
-        if ($build === null) {
+        try {
+            $build = $this->repository->updateAnalysisState($buildUrn, $analyzer, $state);
+        } catch (AnalysisNotFoundException $exception) {
             return new JsonResponse(['error' => 'AnalysisNotFound'], 404);
         }
-
-        $build->changeAnalysisState($analyzer, $state);
 
         return new JsonResponse($build);
     }

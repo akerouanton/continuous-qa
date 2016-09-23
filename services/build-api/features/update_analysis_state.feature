@@ -13,6 +13,7 @@ Feature: Change the state of a build analysis
               "urn": "urn:gh:knplabs\/gaufrette:2",
               "projectUrn": "urn:gh:knplabs\/gaufrette",
               "repoUrl": "https:\/\/github.com\/knplabs\/gaufrette",
+              "reference": "develop",
               "analyzers": ["php-cs-fixer", "phpqa"],
               "analyses": [
                   {
@@ -36,17 +37,6 @@ Feature: Change the state of a build analysis
       And the response should contains the following json:
       """
       {"error": "InvalidState"}
-      """
-
-  Scenario:
-    Given I prepare a PATCH request on "/build/urn:gh:knplabs/gaufrette:100/php-cs-fixer"
-      And I specified the following request body:
-      | state | succeeded |
-     When I send the request
-     Then I should receive a 404 json response
-      And the response should contains the following json:
-      """
-      {"error": "BuildNotFound"}
       """
 
   Scenario:

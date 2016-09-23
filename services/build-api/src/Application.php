@@ -64,21 +64,25 @@ final class Application extends BaseApplication
             return $this['mongo']->selectCollection('builds');
         });
 
+        $this['repository.build'] = self::share(function () {
+            return new BuildRepository($this['mongo.builds'], $this['repository.project']);
+        });
+        $this['repository.project'] = self::share(function () {
+            return new ProjectRepository($this['mongo.projects']);
+        });
+
         $this->register(new \Silex\Provider\ServiceControllerServiceProvider());
         $this['controller.get_build'] = self::share(function () {
-            return new GetBuildController($this['mongo.builds']);
+            return new GetBuildController($this['repository.build']);
         });
         $this['controller.create_build'] = self::share(function () {
-            return new CreateBuildController(
-                new BuildRepository($this['mongo.builds'], new ProjectRepository($this['mongo.projects'])),
-                $this['amqp.producer']['build']
-            );
+            return new CreateBuildController($this['repository.build'], $this['amqp.producer']['build']);
         });
         $this['controller.get_build_history'] = self::share(function () {
-            return new GetBuildHistoryController($this['mongo.builds']);
+            return new GetBuildHistoryController($this['repository.build']);
         });
         $this['controller.update_analysis_state'] = self::share(function () {
-            return new UpdateAnalysisStateController($this['mongo.builds']);
+            return new UpdateAnalysisStateController($this['repository.build']);
         });
     }
 

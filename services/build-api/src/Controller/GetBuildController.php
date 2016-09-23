@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Exception\BuildNotFoundException;
+use App\Service\BuildRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -16,8 +18,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  *     buildUrn = urn:gh:knplabs/gaufrette:1
  * @apiSuccess {String}   state             Build state (either <code>started</code> or <code>finished</code>)
  * @apiSuccess {String}   urn               Build URN
- * @apiSuccess {String}   projectUrn       Project URN
- * @apiSuccess {String}   repoUrl          Repository URL
+ * @apiSuccess {String}   projectUrn        Project URN
+ * @apiSuccess {String}   repoUrl           Repository URL
+ * @apiSuccess {String}   reference         Commit/branch/tag reference
  * @apiSuccess {String[]} analyzers         List of analyzers used for this build
  * @apiSuccess {Object[]} analyses          List of analyses
  * @apiSuccess {String}   analyses.analyzer Analyzer name
@@ -26,15 +29,15 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 final class GetBuildController
 {
-    /** @var \MongoDB\Collection */
-    private $collection;
+    /** @var BuildRepository */
+    private $repository;
 
     /**
-     * @param \MongoDB\Collection $collection
+     * @param BuildRepository $repository
      */
-    public function __construct(\MongoDB\Collection $collection)
+    public function __construct(BuildRepository $repository)
     {
-        $this->collection = $collection;
+        $this->repository = $repository;
     }
 
     /**
@@ -44,9 +47,9 @@ final class GetBuildController
      */
     public function get(string $buildUrn)
     {
-        $build = $this->collection->findOne(['urn' => $buildUrn]);
-
-        if (null === $build) {
+        try {
+            $build = $this->repository->get($buildUrn);
+        } catch (BuildNotFoundException $exception) {
             return new JsonResponse(['error' => 'BuildNotFound'], 404);
         }
 

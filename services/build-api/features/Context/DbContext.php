@@ -11,6 +11,6 @@ class DbContext extends Context
      */
     public function beforeScenario()
     {
-        exec(sprintf('cd %s/../../../ && make mongo-restore SERVICE=build-api', __DIR__));
+        exec(sprintf('cd %s/../../../../ && make mongo-restore SERVICE=build-api', __DIR__));
     }
 }

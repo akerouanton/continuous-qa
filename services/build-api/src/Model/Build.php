@@ -23,6 +23,9 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     /** @var string */
     private $repoUrl;
 
+    /** @var string */
+    private $reference;
+
     /** @var Analysis[] */
     private $analyses;
 
@@ -36,18 +39,21 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
      * @param int      $buildId
      * @param string   $projectUrn
      * @param string   $repoUrl
+     * @param string   $reference
      * @param string[] $analyzers
      */
-    public function __construct(int $buildId, string $projectUrn, string $repoUrl, array $analyzers)
+    public function __construct(int $buildId, string $projectUrn, string $repoUrl, string $reference, array $analyzers)
     {
         \Assert\that($projectUrn)->notEmpty();
         \Assert\that($repoUrl)->notEmpty();
+        \Assert\that($reference)->notEmpty();
         \Assert\that($analyzers)->notEmpty();
 
         $this->_id        = new \MongoDB\BSON\ObjectID();
         $this->urn        = sprintf('%s:%s', $projectUrn, $buildId);
         $this->projectUrn = $projectUrn;
         $this->repoUrl    = $repoUrl;
+        $this->reference  = $reference;
         $this->analyzers  = $analyzers;
         $this->state      = self::STATE_STARTED;
 
@@ -81,6 +87,14 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     }
 
     /**
+     * @return string
+     */
+    public function getReference(): string
+    {
+        return $this->reference;
+    }
+
+    /**
      * @return Analysis[]
      */
     public function getAnalyses(): array
@@ -89,20 +103,11 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
     }
 
     /**
-     * @param string $analyzer
-     * @param string $state
+     * @return void
      */
-    public function changeAnalysisState(string $analyzer, string $state)
+    public function finished()
     {
-        $this->getAnalysis($analyzer)->changeState($state);
-
-        $unfinished = array_filter($this->analyses, function (Analysis $analysis) {
-            return in_array($analysis->getState(), [Analysis::STATE_CREATED, Analysis::STATE_RUNNING]);
-        });
-
-        if (count($unfinished) === 0) {
-            $this->state = self::STATE_FINISHED;
-        }
+        $this->state = self::STATE_FINISHED;
     }
 
     /**
@@ -129,8 +134,9 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
         return [
             'state'       => $this->state,
             'urn'         => $this->urn,
-            'projectUrn' => $this->projectUrn,
-            'repoUrl'    => $this->repoUrl,
+            'projectUrn'  => $this->projectUrn,
+            'repoUrl'     => $this->repoUrl,
+            'reference'   => $this->reference,
             'analyzers'   => $this->analyzers,
             'analyses'    => array_map(function (Analysis $analysis) {
                 return $analysis->jsonSerialize();
@@ -147,8 +153,9 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
             '_id'         => $this->_id,
             'state'       => $this->state,
             'urn'         => $this->urn,
-            'projectUrn' => $this->projectUrn,
-            'repoUrl'    => $this->repoUrl,
+            'projectUrn'  => $this->projectUrn,
+            'reference'   => $this->reference,
+            'repoUrl'     => $this->repoUrl,
             'analyzers'   => $this->analyzers,
             'analyses'    => array_map(function (Analysis $analysis) {
                 return $analysis->bsonSerialize();
@@ -166,6 +173,7 @@ final class Build implements \JsonSerializable, \MongoDB\BSON\Persistable
         $this->urn        = $data['urn'];
         $this->projectUrn = $data['projectUrn'];
         $this->repoUrl    = $data['repoUrl'];
+        $this->reference  = $data['reference'];
         $this->analyzers  = array_values((array) $data['analyzers']);
         $this->analyses   = $data['analyses'];
 

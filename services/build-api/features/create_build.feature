@@ -11,7 +11,8 @@ Feature: Create a new build
   @reset-db
   Scenario: Create a new build
     Given I specified the following request body:
-      | repoUrl | https://github.com/knplabs/gaufrette |
+      | repoUrl   | https://github.com/knplabs/gaufrette |
+      | reference | master                               |
      When I send the request
      Then I should receive a 200 json response
       And the response should contains the following json:
@@ -21,6 +22,7 @@ Feature: Create a new build
           "urn": "urn:gh:knplabs\/gaufrette:3",
           "projectUrn": "urn:gh:knplabs\/gaufrette",
           "repoUrl": "https:\/\/github.com\/knplabs\/gaufrette",
+          "reference": "master",
           "analyzers": [
               "phpqa",
               "php-cs-fixer"
@@ -44,4 +46,14 @@ Feature: Create a new build
       And the response should contains the following json:
         """
         {"error": "MissingRepoUrl"}
+        """
+
+  Scenario: Submit with missing reference
+    Given I specified the following request body:
+      | repoUrl   | https://github.com/knplabs/gaufrette |
+     When I send the request
+     Then I should receive a 400 json response
+      And the response should contains the following json:
+        """
+        {"error": "MissingReference"}
         """
