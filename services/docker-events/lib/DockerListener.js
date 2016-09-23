@@ -9,7 +9,7 @@ export default class {
 
   listenEvents() {
     const now = Math.floor(new Date().getTime() / 1000);
-    const filters = {'event': ['die', 'start'], 'label': [this._config.containerLabel]};
+    const filters = {'type': ['container'], 'event': ['die'], 'label': [this._config.containerLabel]};
 
     this._docker.getEvents({since: now, filters: filters}, (err, stream) => {
       if (err) {

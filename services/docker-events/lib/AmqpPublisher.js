@@ -40,9 +40,8 @@ export default class AmqpPublisher {
 
     logger.info(event);
 
-    const key = event.Type + '.' + event.Action;
+    const key = 'runner.' + event.Action;
     const message = JSON.stringify({
-      containerId: event.Actor.ID,
       event: event.Action,
       metadata: event.Actor.Attributes
     });
