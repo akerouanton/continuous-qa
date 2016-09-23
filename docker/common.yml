@@ -56,3 +56,9 @@ services:
     env_file: ../services/docker-events/.env
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
+
+  gh-hooks:
+    build: ../services/gh-hooks
+    env_file: ../services/gh-hooks/.env
+    expose: ['8000']
+

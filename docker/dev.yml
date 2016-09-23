@@ -106,3 +106,12 @@ services:
     command: dev-app
     volumes:
       - "../services/docker-events/:/usr/src/app/"
+
+  gh-hooks:
+    extends:
+      file: common.yml
+      service: gh-hooks
+    command: dev-start
+    volumes:
+      - "../services/gh-hooks/:/usr/src/app/"
+
