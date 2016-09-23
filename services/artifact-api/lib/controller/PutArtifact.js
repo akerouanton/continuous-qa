@@ -2,6 +2,7 @@ const multer = require('multer');
 const Promise = require('promise');
 const mmm = require('mmmagic');
 const Magic = mmm.Magic;
+const Buffer = require('buffer').Buffer;
 
 import logger from '../Logger';
 import {ArtifactAlreadyExistsError,EmptyUploadError} from '../Exceptions';
@@ -46,7 +47,12 @@ export default class {
         }
       })
       .then(() => {
-        return this._magic_detect(req.file.buffer);
+        var buffer = req.file.buffer;
+        if (buffer.constructor !== Buffer.constructor) {
+          buffer = Buffer.from(req.file.buffer);
+        }
+
+        return this._magic_detect(buffer);
       })
       .then((mimeType) => {
         return this._collection.insertOne({
