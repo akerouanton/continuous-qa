@@ -26,6 +26,12 @@ Multi-tenant CI platform wirtten in NodeJS. Version 0.1 focus on API endpoints.
   * **mongo-restore**: Restore databases dumped in `/dumps`
   * **tests-e2e**: Execute end-to-end tests
 
+Directory structure:
+  * **analyzers/**: You'll find analyzers with their respective Dockerfile and entrypoint here
+  * **docker/**: Contains shared containers (like mongodb or nginx) and `docker-compose` configuration
+  * **dumps/**: Store dumps used for running end-to-end tests
+  * **services/**: Contains microservices composing the application
+
 ## How to install
 
 ```bash

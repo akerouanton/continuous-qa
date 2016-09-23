@@ -3,7 +3,7 @@
 COMPOSE_PROJECT_NAME?=continuousqa
 export $COMPOSE_PROJECT_NAME
 FIG=docker-compose -p $(COMPOSE_PROJECT_NAME) -f $(COMPOSE_FILE)
-ANALYZERS=$(shell ls docker/analyzers/)
+ANALYZERS=$(shell ls analyzers/)
 ENV=dev
 COMPOSE_FILE=docker/$(ENV).yml
 
@@ -31,7 +31,7 @@ ifneq (,$(CACHE))
 endif
 
 build-analyzers:
-	for ANALYZER in $(ANALYZERS); do echo "Building $$ANALYZER ..."; docker build -t $(COMPOSE_PROJECT_NAME)/$$ANALYZER:latest docker/analyzers/$$ANALYZER; done
+	for ANALYZER in $(ANALYZERS); do echo "Building $$ANALYZER ..."; docker build -t $(COMPOSE_PROJECT_NAME)/$$ANALYZER:latest analyzers/$$ANALYZER; done
 
 build:
 	$(FIG) build $(CACHE) $(CONTAINER)
