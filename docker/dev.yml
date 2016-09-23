@@ -115,3 +115,17 @@ services:
     volumes:
       - "../services/gh-hooks/:/usr/src/app/"
 
+  docker-log-streamer:
+    extends:
+      file: common.yml
+      service: docker-log-streamer
+    command: dev-start
+    volumes:
+      - "../services/docker-log-streamer:/usr/src/app/"
+
+  logstash:
+    extends:
+      file: common.yml
+      service: logstash
+    volumes:
+      - "./logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf"

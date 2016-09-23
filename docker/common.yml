@@ -62,3 +62,12 @@ services:
     env_file: ../services/gh-hooks/.env
     expose: ['8000']
 
+  docker-log-streamer:
+    build: ../services/docker-log-streamer
+    env_file: ../services/docker-log-streamer/.env
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  logstash:
+    build: logstash
+

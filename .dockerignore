@@ -5,6 +5,7 @@ services/build-api/Dockerfile
 services/build-consumer/Dockerfile
 services/build-consumer/node_modules/
 services/docker-events/
+services/docker-log-streamer/
 services/front/
 services/runner-api/node_modules/
 services/runner-api/Dockerfile

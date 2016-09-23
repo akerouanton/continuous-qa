@@ -1,6 +1,6 @@
 # Continuous QA
 
-Dockercompose >= 1.8
+  * Docker Compose: >= 1.8
 
 Useful links:
   * [API Documentation](http://localhost/docs/)
@@ -11,7 +11,6 @@ Useful links:
 
   * Add statsd
   * Add tests _everywhere_
-  * Add elixir gateway
+  * Add gateway
   * Add front UI
   * Add support for gitlab
-  * Check whether root .dockerignore is used or if a .dockerignore in each directory is needed

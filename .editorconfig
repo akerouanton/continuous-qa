@@ -19,3 +19,6 @@ indent_style = tab
 
 [*.conf]
 indent_size = 4
+
+[logstash.conf]
+indent_size = 2
