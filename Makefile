@@ -1,4 +1,5 @@
-.PHONY: build up stop ps logs introspect rm artifact-api build-api docker front
+.PHONY: build build-analyzers up stop halt ps logs introspect rm run reload restart drop-database load-fixtures
+.PHONY: mongo-dump mongo-restore tests-e2e cleanup-runner cleanup install
 
 COMPOSE_PROJECT_NAME?=continuousqa
 export $COMPOSE_PROJECT_NAME

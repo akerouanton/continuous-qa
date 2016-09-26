@@ -48,7 +48,7 @@ export default class App {
     }
 
     this._publisher.sendMessage(`${buildUrn}/${analyzer}`, {
-      analyzerUrn: `${buildUrn}:${analyzer}`,
+      analysisUrn: `${buildUrn}:${analyzer}`,
       log: log
     });
   }

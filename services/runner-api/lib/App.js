@@ -42,7 +42,7 @@ export default class App {
   }
 
   validateBuildUrn(req, res, next, urn) {
-    if (/^urn:gh:[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+:\d+/.test(urn)) {
+    if (/^urn:gh:[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+:\d+$/.test(urn)) {
       next();
       return;
     }
@@ -50,7 +50,7 @@ export default class App {
     res.status(400).json({error: 'UrnNotValid'});
   }
 
-  errorHandler(err, req, res, next) { // 'next' mandatory, must not remove
+  errorHandler(err, req, res, next) { // 'next' mandatory, must not be removed
     let log = `${err.name}: ${err.message}`;
     if (typeof err.stack !== 'undefined') {
       log = err;
