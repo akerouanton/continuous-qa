@@ -129,3 +129,11 @@ services:
       service: logstash
     volumes:
       - "./logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf"
+
+  log-api:
+    extends:
+      file: common.yml
+      service: log-api
+    command: dev-start
+    volumes:
+      - "../services/log-api/:/usr/src/app/"

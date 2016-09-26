@@ -71,3 +71,6 @@ services:
   logstash:
     build: logstash
 
+  log-api:
+    build: ../services/log-api
+    env_file: ../services/log-api/.env
