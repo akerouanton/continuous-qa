@@ -6,7 +6,7 @@ export default class LogRepository {
   getLogs(analysis) {
     return this
       ._collection
-      .find({analysisUrn: analysis})
+      .find({analysisUrn: analysis}, {_id: false, analysisUrn: true, log: true})
       .sort({'@timestamp': 1})
       .toArray()
     ;

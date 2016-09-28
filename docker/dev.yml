@@ -17,6 +17,7 @@ services:
       - "27017:27017"
     volumes:
       - "../services/build-api/fixtures/:/fixtures/build-api/"
+      - "../services/log-api/fixtures/:/fixtures/log-api/"
       - "..//dumps/:/dumps/"
 
   nginx:
