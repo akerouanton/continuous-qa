@@ -3,6 +3,7 @@ const os = require('os');
 const crypto = require('crypto');
 
 import logger from '../Logger';
+import {RunnerError, RunnerAlreadyExistsError, RunnerNotFoundError, AnalyzerNotSupportedError} from './RunnerError';
 
 export default class Runner {
   constructor(docker, config) {
@@ -24,7 +25,7 @@ export default class Runner {
     const normalized = {};
 
     for (let label in labels) {
-      normalized[`${this._config.labelPrefix}.${label}`] = labels[label];
+      normalized[`${this._config.label_prefix}.${label}`] = labels[label];
     }
 
     return normalized;
@@ -65,38 +66,41 @@ export default class Runner {
 
         return container.start();
       })
+      .catch((err) => {
+        // Docker daemon may return '404 no such container' / '409 Conflict'
+        if ('statusCode' in err && err.statusCode == 404) {
+          throw new AnalyzerNotSupportedError(analyzer, err);
+        } else if ('statusCode' in err && err.statusCode == 409) {
+          throw new RunnerAlreadyExistsError(normalizedName, buildUrn, analyzer, err);
+        }
+
+        throw new RunnerError(
+          `An error happened while starting runner "${normalizedName}", for "${buildUrn}:${analyzer}".`,
+          err
+        );
+      })
     ;
   }
 
   stopRunner(buildUrn, analyzer) {
     const name = Runner.normalizeRunnerName(buildUrn, analyzer);
+    const container = this._docker.getContainer(name);
     logger.info(`Stopping container "${name}" (runner "${buildUrn}:${analyzer}").`);
 
-    var container = this
-      ._docker
-      .getContainer(name);
-
     return container
-      .stop()
-      .then((response) => {
-        console.log(response);
-        if (response.statusCode !== 204) {
-          throw new Error('Unable to stop runner.', {
-            containerName: name,
-            statusCode: response.statusCode,
-            body: response.body
-          });
-        }
-
+      .stop({ t: 1 })
+      .then(() => {
         logger.debug(`Container "${name}" (runner "${buildUrn}:${analyzer}") stopped.`);
+        return container;
       }, (err) => {
-        if (err.statusCode === 304) {
+        if ('statusCode' in err && err.statusCode === 304) {
           logger.debug(`Container "${name}" (runner "${buildUrn}:${analyzer}") already stopped.`);
-
           return Promise.resolve(container);
+        } else if ('statusCode' in err && err.statusCode === 404) {
+          throw new RunnerNotFoundError(buildUrn, analyzer, err);
         }
 
-        return Promise.reject(err);
+        throw new RunnerError(`An error happened while stopping runner "${name}", for "${buildUrn}:${analyzer}".`, err);
       })
     ;
   }
@@ -106,15 +110,20 @@ export default class Runner {
 
     return this
       .stopRunner(buildUrn, analyzer)
-      .then(() => {
+      .then((container) => {
         logger.info(`Dropping container "${name}" (runner "${buildUrn}:${analyzer}").`);
 
-        return this._docker.getContainer(name).remove({v: true, force: true});
+        return container.remove({v: true, force: true});
       })
       .then(() => {
         logger.debug(`Container "${name}" (runner "${buildUrn}:${analyzer}") dropped.`);
+      })
+      .catch((err) => {
+        if (err instanceof RunnerError) {
+          throw err;
+        }
 
-        return Promise.resolve();
+        throw new RunnerError(`An error happened while dropping runner "${name}", for "${buildUrn}:${analyzer}".`, err);
       })
     ;
   }

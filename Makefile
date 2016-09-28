@@ -1,5 +1,5 @@
-.PHONY: build build-analyzers up stop halt ps logs introspect rm run reload restart drop-database load-fixtures
-.PHONY: mongo-dump mongo-restore tests-e2e cleanup-runner cleanup install
+.PHONY: build build-analyzers up stop halt ps logs introspect rm run reload restart drop-databases load-fixtures
+.PHONY: mongo-dump mongo-restore tests cleanup-runner cleanup install
 
 COMPOSE_PROJECT_NAME?=continuousqa
 export $COMPOSE_PROJECT_NAME
@@ -64,21 +64,30 @@ reload: stop up
 
 restart: reload
 
+ARTIFACT_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/artifact-api/.env)
 BUILD_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/build-api/.env)
+LOG_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/log-api/.env)
 drop-databases:
+	$(FIG) exec mongodb mongo $(ARTIFACT_API_DBNAME) --eval "db.dropDatabase()"
 	$(FIG) exec mongodb mongo $(BUILD_API_DBNAME) --eval "db.dropDatabase()"
+	$(FIG) exec mongodb mongo $(LOG_API_DBNAME) --eval "db.dropDatabase()"
 
 load-fixtures: drop-databases
 	$(FIG) exec mongodb mongo $(BUILD_API_DBNAME) /fixtures/build-api/builds.js
+	$(FIG) exec mongodb mongo $(LOG_API_DBNAME) /fixtures/log-api/logs.js
 
 mongo-dump:
 	$(FIG) exec mongodb mongodump --db=$(BUILD_API_DBNAME) --archive=/dumps/$(BUILD_API_DBNAME)
+	$(FIG) exec mongodb mongodump --db=$(LOG_API_DBNAME) --archive=/dumps/$(LOG_API_DBNAME)
 
 mongo-restore: drop-databases
 	$(FIG) exec mongodb mongorestore --db=$(BUILD_API_DBNAME) --archive=/dumps/$(BUILD_API_DBNAME)
+	$(FIG) exec mongodb mongorestore --db=$(LOG_API_DBNAME) --archive=/dumps/$(LOG_API_DBNAME)
 
-tests-e2e:
+tests:
 	cd services/build-api && vendor/bin/behat
+	cd services/log-api && NODE_ENV=test npm run tests
+	cd services/runner-api && NODE_ENV=test npm run tests
 
 ARTIFACTS_TMP_DIR=$(shell awk -F= '/TMP_DIR/ {print $$2}' services/runner-api/.env)
 cleanup-runner:

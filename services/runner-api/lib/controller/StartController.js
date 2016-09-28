@@ -1,6 +1,7 @@
 const Promise = require('promise');
 
 import Runner from '../service/Runner';
+import {RunnerAlreadyExistsError, AnalyzerNotSupportedError} from '../service/RunnerError';
 
 /**
  * @api {post} /runner/:buildUrn/:analyzer/start Start a new runner
@@ -19,6 +20,7 @@ import Runner from '../service/Runner';
  * @apiError (400) UrnNotValid          The build URN is not valid
  * @apiError (400) MissingRepoUrl       <code>repoUrl</code> is missing
  * @apiError (400) MissingReference
+ * @apiError (404) AnalyzerNotSupported
  * @apiError (409) RunnerAlreadyCreated
  */
 export default class {
@@ -44,9 +46,10 @@ export default class {
 
     const name = Runner.normalizeRunnerName(buildUrn, analyzer);
 
-    this
+    /*this
       ._artifactManager
-      .createDirectory(name)
+      .createDirectory(name)*/
+    Promise.resolve(this._artifactManager.getDirectory(name))
       .then((artifactDirectory) => {
         return this
           ._runner
@@ -57,8 +60,11 @@ export default class {
         res.sendStatus(200).end();
       })
       .catch((err) => {
-        // Docker daemon may return '409 Conflict'
-        if ('statusCode' in err && err.statusCode == 409) {
+        if (err instanceof AnalyzerNotSupportedError) {
+          res.status(404).json({ error: 'AnalyzerNotSupported'});
+          return Promise.reject();
+        }
+        if (err instanceof RunnerAlreadyExistsError) {
           res.status(409).json({ error: 'RunnerAlreadyCreated'});
           return Promise.reject();
         }

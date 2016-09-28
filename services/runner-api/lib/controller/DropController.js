@@ -1,6 +1,7 @@
 const Promise = require('promise');
 
 import Runner from '../service/Runner';
+import {RunnerNotFoundError} from '../service/RunnerError';
 
 /**
  * @api {post} /runner/:buildUrn/:analyzer/drop Remove a runner
@@ -28,14 +29,14 @@ export default class {
     this
       ._runner
       .dropRunner(buildUrn, analyzer)
-      .then(() => {
+      /*.then(() => {
         return this._artifactManager.removeDirectory(Runner.normalizeRunnerName(buildUrn, analyzer));
-      })
+      })*/
       .then(() => {
         res.sendStatus(200).end();
       })
       .catch((err) => {
-        if ('statusCode' in err && err.statusCode == 404) {
+        if (err instanceof RunnerNotFoundError) {
           res.status(404).json({ error: 'RunnerNotExists'});
           return Promise.reject();
         }

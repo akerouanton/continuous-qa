@@ -11,10 +11,10 @@ import DropController from './controller/DropController';
 
 export default class App {
   constructor(config) {
-    const docker = new Docker({socketPath: config.docker.socketPath});
+    const docker = new Docker({socketPath: config.docker_socket});
 
-    this._runner = new Runner(docker, {labelPrefix: config.labelPrefix});
-    this._artifactManager = new ArtifactManager(config.tmpDir);
+    this._runner = new Runner(docker, {labelPrefix: config.label_prefix});
+    this._artifactManager = new ArtifactManager(config.tmp_dir);
     this._express = express();
     this._config = config;
 
@@ -36,8 +36,8 @@ export default class App {
   }
 
   run() {
-    this._express.listen(this._config.httpPort, () => {
-      logger.info(`Application started on port ${this._config.httpPort}.`);
+    this._express.listen(this._config.http_port, () => {
+      logger.info(`Application started on port ${this._config.http_port}.`);
     });
   }
 
