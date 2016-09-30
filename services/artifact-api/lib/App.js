@@ -17,7 +17,7 @@ export default class {
 
   bootDatabase() {
     MongoClient
-      .connect(this._config.mongo_uri)
+      .connect(`${this._config.mongo_uri}/${this._config.mongo_dbname}`)
       .then((db) => {
         logger.info('Connection to the database established.');
 
