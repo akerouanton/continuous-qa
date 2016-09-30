@@ -1,0 +1,4 @@
+httpPort: 8000
+mongo:
+  uri: mongodb://localhost
+  db: pipeline

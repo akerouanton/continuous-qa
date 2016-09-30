@@ -16,6 +16,8 @@ services/front/
 services/gh-hooks/
 services/log-api/node_modules/
 services/log-api/Dockerfile
+services/pipeline-api/node_modules/
+services/pipeline-api/Dockerfile
 services/runner-api/node_modules/
 services/runner-api/Dockerfile
 services/runner-gc/node_modules/

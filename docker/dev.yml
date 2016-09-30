@@ -18,6 +18,7 @@ services:
     volumes:
       - "../services/build-api/fixtures/:/fixtures/build-api/"
       - "../services/log-api/fixtures/:/fixtures/log-api/"
+      - "../services/pipeline-api/fixtures/:/fixtures/pipeline-api/"
       - "..//dumps/:/dumps/"
 
   nginx:
@@ -58,8 +59,6 @@ services:
     volumes:
       - "../services/artifact-api/bin:/usr/src/app/bin/"
       - "../services/artifact-api/lib:/usr/src/app/lib/"
-    ports:
-      - '8000:8000'
 
   front:
     extends:
@@ -138,3 +137,11 @@ services:
     command: dev-start
     volumes:
       - "../services/log-api/:/usr/src/app/"
+
+  pipeline-api:
+    extends:
+      file: common.yml
+      service: pipeline-api
+    command: dev-app
+    volumes:
+      - "../services/pipeline-api/:/usr/src/app/"

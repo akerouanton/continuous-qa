@@ -1,0 +1,4 @@
+htppPort: HTTP_PORT
+mongo:
+  uri: MONGO_URI
+  db: MONGO_DBNAME

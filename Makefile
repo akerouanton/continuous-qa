@@ -5,6 +5,7 @@ COMPOSE_PROJECT_NAME?=continuousqa
 export $COMPOSE_PROJECT_NAME
 FIG=docker-compose -p $(COMPOSE_PROJECT_NAME) -f $(COMPOSE_FILE)
 ANALYZERS=$(shell ls analyzers/)
+SERVICES=artifact-api build-api log-api pipeline-api
 ENV=dev
 COMPOSE_FILE=docker/$(ENV).yml
 
@@ -12,7 +13,7 @@ comma:= ,
 empty:=
 space:= $(empty) $(empty)
 
-ANALYZER=
+ANALYZER?=
 ifneq (,$(A))
 	ANALYZER=$(A)
 endif
@@ -21,7 +22,7 @@ ifneq (,$(ANALYZER))
 	ANALYZERS=$(ANALYZER)
 endif
 
-CONTAINER=
+CONTAINER?=
 ifneq (,$(C))
 	CONTAINER=$(C)
 endif
@@ -67,26 +68,32 @@ restart: reload
 ARTIFACT_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/artifact-api/.env)
 BUILD_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/build-api/.env)
 LOG_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/log-api/.env)
+PIPELINE_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/pipeline-api/.env)
 drop-databases:
-	$(FIG) exec mongodb mongo $(ARTIFACT_API_DBNAME) --eval "db.dropDatabase()"
-	$(FIG) exec mongodb mongo $(BUILD_API_DBNAME) --eval "db.dropDatabase()"
-	$(FIG) exec mongodb mongo $(LOG_API_DBNAME) --eval "db.dropDatabase()"
+	$(FIG) exec -T mongodb mongo $(ARTIFACT_API_DBNAME) --eval "db.dropDatabase()"
+	$(FIG) exec -T mongodb mongo $(BUILD_API_DBNAME) --eval "db.dropDatabase()"
+	$(FIG) exec -T mongodb mongo $(LOG_API_DBNAME) --eval "db.dropDatabase()"
+	$(FIG) exec -T mongodb mongo $(PIPELINE_API_DBNAME) --eval "db.dropDatabase()"
 
 load-fixtures: drop-databases
 	$(FIG) exec mongodb mongo $(BUILD_API_DBNAME) /fixtures/build-api/builds.js
 	$(FIG) exec mongodb mongo $(LOG_API_DBNAME) /fixtures/log-api/logs.js
+	$(FIG) exec mongodb mongo $(PIPELINE_API_DBNAME) /fixtures/pipeline-api/pipelines.js
 
 mongo-dump:
 	$(FIG) exec mongodb mongodump --db=$(BUILD_API_DBNAME) --archive=/dumps/$(BUILD_API_DBNAME)
 	$(FIG) exec mongodb mongodump --db=$(LOG_API_DBNAME) --archive=/dumps/$(LOG_API_DBNAME)
+	$(FIG) exec mongodb mongodump --db=$(PIPELINE_API_DBNAME) --archive=/dumps/$(PIPELINE_API_DBNAME)
 
 mongo-restore: drop-databases
-	$(FIG) exec mongodb mongorestore --db=$(BUILD_API_DBNAME) --archive=/dumps/$(BUILD_API_DBNAME)
-	$(FIG) exec mongodb mongorestore --db=$(LOG_API_DBNAME) --archive=/dumps/$(LOG_API_DBNAME)
+	$(FIG) exec -T mongodb mongorestore --db=$(BUILD_API_DBNAME) --archive=/dumps/$(BUILD_API_DBNAME)
+	$(FIG) exec -T mongodb mongorestore --db=$(LOG_API_DBNAME) --archive=/dumps/$(LOG_API_DBNAME)
+	$(FIG) exec -T mongodb mongorestore --db=$(PIPELINE_API_DBNAME) --archive=/dumps/$(PIPELINE_API_DBNAME)
 
 tests:
 	cd services/build-api && vendor/bin/behat
 	cd services/log-api && NODE_ENV=test npm run tests
+	cd services/pipeline-api && NODE_ENV=test npm run tests
 	cd services/runner-api && NODE_ENV=test npm run tests
 
 ARTIFACTS_TMP_DIR=$(shell awk -F= '/TMP_DIR/ {print $$2}' services/runner-api/.env)
