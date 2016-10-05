@@ -45,10 +45,17 @@ make load-fixtures
 
 Now, you can browse to `http://localhost/docs/` and start it.
 
-## TODO
+## How to run tests
 
+You need to create database dumps before executing test suites: `make load-fixtures mongo-dump`.
+
+Then you can run all test suites using `make tests`.
+
+## TODO
+  
   * Replace hardcoded container hostnames by network aliases
   * Add gateway
+  * Make http services truly RESTful
   * Add infra logs (`docker logs`/`make logs` sucks)
   * Add tests (it's a POC, don't care for now)
   * Add stats (for fun)

@@ -1,0 +1,63 @@
+{
+  "name": "continuous-qa-build-api",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "app": "./node_modules/.bin/babel-node bin/app.js",
+    "dev-app": "./node_modules/.bin/nodemon --exec npm run app",
+    "tests": "npm run tests-unit && npm run tests-e2e",
+    "tests-unit": "./node_modules/.bin/mocha --compilers babel-core/register tests/unit/**/*.js",
+    "tests-e2e": "./node_modules/.bin/mocha --compilers babel-core/register tests/e2e/",
+    "lint": "./node_modules/.bin/eslint lib/"
+  },
+  "author": "Albin Kerouanton <albin.kerouanton@knplabs.com>",
+  "license": "MIT",
+  "dependencies": {
+    "amqp": "^0.2.6",
+    "babel-cli": "^6.16.0",
+    "babel-preset-es2015-node": "^6.1.1",
+    "body-parser": "^1.15.2",
+    "config": "^1.21.0",
+    "express": "^4.14.0",
+    "js-yaml": "^3.6.1",
+    "mongoose": "^4.6.1",
+    "morgan": "^1.7.0",
+    "tracer": "^0.8.3"
+  },
+  "devDependencies": {
+    "babel-core": "^6.16.0",
+    "chai": "^3.5.0",
+    "chakram": "^1.5.0",
+    "eslint": "^3.7.1",
+    "eslint-plugin-import": "^2.0.0",
+    "mocha": "^3.1.0",
+    "nodemon": "^1.10.2",
+    "sinon": "^1.17.6",
+    "sinon-chai": "^2.8.0",
+    "underscore": "^1.8.3"
+  },
+  "babel": {
+    "presets": [
+      "es2015-node"
+    ]
+  },
+  "eslintConfig": {
+    "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module"
+    },
+    "extends": [
+      "eslint:recommended"
+    ],
+    "rules": {
+      "quotes": [
+        1,
+        "single",
+        {
+          "allowTemplateLiterals": true
+        }
+      ]
+    }
+  }
+}

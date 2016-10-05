@@ -19,7 +19,6 @@ services:
   artifact-api:
     build: ../services/artifact-api
     env_file: ../services/artifact-api/.env
-    expose: ['8000']
     environment:
       - MONGO_HOST_PORT=continuousqa_mongodb_1:27017
 
@@ -60,7 +59,6 @@ services:
   gh-hooks:
     build: ../services/gh-hooks
     env_file: ../services/gh-hooks/.env
-    expose: ['8000']
 
   docker-log-streamer:
     build: ../services/docker-log-streamer

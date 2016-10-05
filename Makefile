@@ -91,7 +91,7 @@ mongo-restore: drop-databases
 	$(FIG) exec -T mongodb mongorestore --db=$(PIPELINE_API_DBNAME) --archive=/dumps/$(PIPELINE_API_DBNAME)
 
 tests:
-	cd services/build-api && vendor/bin/behat
+	cd services/build-api && NODE_ENV=test npm run tests
 	cd services/log-api && NODE_ENV=test npm run tests
 	cd services/pipeline-api && NODE_ENV=test npm run tests
 	cd services/runner-api && NODE_ENV=test npm run tests

@@ -6,7 +6,7 @@ dumps/
 node_modules/
 services/artifact-api/Dockerfile
 services/artifact-api/node_modules/
-services/build-api/vendor/
+services/build-api/node_modules/
 services/build-api/Dockerfile
 services/build-consumer/Dockerfile
 services/build-consumer/node_modules/

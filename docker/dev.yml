@@ -46,10 +46,9 @@ services:
     extends:
       file: common.yml
       service: build-api
+    command: ["dev-app"]
     volumes:
       - "../services/build-api/:/usr/src/app/"
-    environment:
-      - MONGO_CONTAINER=continuousqa_mongodb_1
 
   artifact-api:
     extends:

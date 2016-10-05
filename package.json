@@ -9,7 +9,7 @@
     "nodemon": "^1.10.2"
   },
   "scripts": {
-    "generate-docs": "./node_modules/.bin/apidoc -i services/artifact-api/lib -i services/build-api/src -i services/log-api/lib -i services/pipeline-api/lib -i services/runner-api/lib -i services/user-api/lib -o docs",
+    "generate-docs": "./node_modules/.bin/apidoc -i services/artifact-api/lib -i services/build-api/lib -i services/log-api/lib -i services/pipeline-api/lib -i services/runner-api/lib -i services/user-api/lib -o docs",
     "dev-generate-docs": "./node_modules/.bin/nodemon --verbose --ext js,json,php --ignore docs --exec npm run generate-docs"
   },
   "repository": {
