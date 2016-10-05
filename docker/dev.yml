@@ -90,13 +90,13 @@ services:
       - "../services/runner-gc/:/usr/src/app/"
       - "/tmp/continuousqa/artifacts/:/tmp/"
 
-  build-consumer:
+  build-orchestrator:
     extends:
       file: common.yml
-      service: build-consumer
+      service: build-orchestrator
     command: dev-app
     volumes:
-      - "../services/build-consumer/:/usr/src/app/"
+      - "../services/build-orchestrator/:/usr/src/app/"
 
   docker-events:
     extends:

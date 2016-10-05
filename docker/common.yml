@@ -46,9 +46,9 @@ services:
     build: ../services/runner-gc
     env_file: ../services/runner-gc/.env
 
-  build-consumer:
-    build: ../services/build-consumer
-    env_file: ../services/build-consumer/.env
+  build-orchestrator:
+    build: ../services/build-orchestrator
+    env_file: ../services/build-orchestrator/.env
 
   docker-events:
     build: ../services/docker-events
