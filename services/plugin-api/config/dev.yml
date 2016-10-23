@@ -1,0 +1,2 @@
+mongo:
+  uri: mongodb://continuousqa_mongodb_1

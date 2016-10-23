@@ -41,6 +41,8 @@ build:
 up:
 	$(FIG) up --no-build -d $(CONTAINER)
 
+start: up
+
 stop:
 	$(FIG) stop $(CONTAINER)
 

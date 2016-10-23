@@ -81,15 +81,6 @@ services:
       - "../services/runner-api/:/usr/src/app/"
       - "/tmp/continuousqa/artifacts/:/tmp/continuousqa/artifacts/"
 
-  runner-gc:
-    extends:
-      file: common.yml
-      service: runner-gc
-    command: dev-app
-    volumes:
-      - "../services/runner-gc/:/usr/src/app/"
-      - "/tmp/continuousqa/artifacts/:/tmp/"
-
   build-orchestrator:
     extends:
       file: common.yml
@@ -144,3 +135,11 @@ services:
     command: dev-app
     volumes:
       - "../services/pipeline-api/:/usr/src/app/"
+
+  plugin-api:
+    extends:
+      file: common.yml
+      service: plugin-api
+    command: dev-app
+    volumes:
+      - "../services/plugin-api/:/usr/src/app/"

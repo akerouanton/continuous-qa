@@ -42,10 +42,6 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
 
-  runner-gc:
-    build: ../services/runner-gc
-    env_file: ../services/runner-gc/.env
-
   build-orchestrator:
     build: ../services/build-orchestrator
     env_file: ../services/build-orchestrator/.env
@@ -76,3 +72,7 @@ services:
   pipeline-api:
     build: ../services/pipeline-api
     env_file: ../services/pipeline-api/.env
+
+  plugin-api:
+    build: ../services/plugin-api
+    env_file: ../services/plugin-api/.env
