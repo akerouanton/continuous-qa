@@ -3,10 +3,10 @@ export default class LogRepository {
     this._collection = collection;
   }
 
-  getLogs(analysis) {
+  getLogs(bucketUrn) {
     return this
       ._collection
-      .find({analysisUrn: analysis}, {_id: false, analysisUrn: true, log: true})
+      .find({bucketUrn}, {_id: false, bucketUrn: true, log: true})
       .sort({'@timestamp': 1})
       .toArray()
     ;

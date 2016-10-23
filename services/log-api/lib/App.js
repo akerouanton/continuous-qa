@@ -36,9 +36,9 @@ export default class App {
     const controller = new GetLogsController(repository);
 
     this._express.use(morgan('combined'));
-    this._express.get('/logs/:analysisUrn', controller.handleRequest.bind(controller));
-    this._express.param('analysisUrn', (req, res, next, urn) => {
-      if (/^urn:gh:[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+:\d+:[a-zA-Z_-]+$/.test(urn)) {
+    this._express.get('/logs/:bucketUrn', controller.handleRequest.bind(controller));
+    this._express.param('bucketUrn', (req, res, next, urn) => {
+      if (/^urn:gh:[a-zA-Z0-9\-_]+\/[a-zA-Z0-9\-_]+:\d+:\d+:[a-zA-Z_\-]+$/.test(urn)) {
         next();
         return;
       }

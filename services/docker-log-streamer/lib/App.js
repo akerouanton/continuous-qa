@@ -39,18 +39,14 @@ export default class App {
   }
 
   _onLogReceived(containerId, containerMetadata, log) {
-    const buildUrn = containerMetadata['com.continuousqa.buildUrn'];
-    const analyzer = containerMetadata['com.continuousqa.analyzer'];
+    const runnerUrn = containerMetadata['com.continuousqa.runnerUrn'];
 
-    if (!buildUrn || !analyzer) {
-      logger.error('Missing buildUrn or analyzer from container metadata.');
+    if (!runnerUrn) {
+      logger.error('Missing runnerUrn from container metadata.');
       return;
     }
 
-    this._publisher.sendMessage(`${buildUrn}/${analyzer}`, {
-      analysisUrn: `${buildUrn}:${analyzer}`,
-      log: log
-    });
+    this._publisher.sendMessage(runnerUrn, {runnerUrn, log});
   }
 
   run() {
