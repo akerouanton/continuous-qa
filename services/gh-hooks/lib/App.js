@@ -7,6 +7,7 @@ const Promise = require('promise');
 const post = Promise.denodeify(require('request').post);
 
 import Controller from './Controller';
+import SignatureChecker from './SignatureChecker';
 
 export default class App {
   constructor(config) {
@@ -18,7 +19,7 @@ export default class App {
   }
 
   boot() {
-    const controller = new Controller(this._emitter, this._config.secret);
+    const controller = new Controller(this._emitter, new SignatureChecker(this._config.secret));
 
     this._express.use(morgan('combined'));
     this._express.use(bodyParser.json());

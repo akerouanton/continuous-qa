@@ -1,10 +1,9 @@
 const logger = require('winston');
-const crypto = require('crypto');
 
 export default class Controller {
-  constructor(emitter, secret) {
+  constructor(emitter, signatureChecker) {
     this._emitter = emitter;
-    this._secret = secret;
+    this._signatureChecker = signatureChecker;
   }
 
   handleRequest(req, res) {
@@ -27,14 +26,8 @@ export default class Controller {
     }
 
     const [algo, signature] = signatureHeader.split('=', 2);
-    const digest = crypto
-      .createHmac(algo, this._secret)
-      .update(JSON.stringify(req.body))
-      .digest('hex')
-    ;
 
-    // @TODO: Use crypto.timingSafeEqual when available
-    if (digest !== signature) {
+    if (!this._signatureChecker.checkSignature(algo, signature)) {
       res.status(400).json({error: 'InvalidSignature'});
       return;
     }
