@@ -1,3 +1,5 @@
+const logger = require('tracer').colorConsole();
+
 export default class HttpParamHandler {
   static projectUrn(req, res, next, urn) {
     if (/^urn:gh:[a-zA-Z0-9\-_]+\/[a-zA-Z0-9\-_]+$/.test(urn)) {
@@ -20,7 +22,7 @@ export default class HttpParamHandler {
   }
 
   static stage(req, res, next, branch) {
-    if (/^[1-9][0-9]*$/.test(branch)) {
+    if (/^[0-9]+$/.test(branch)) {
       return next();
     }
 

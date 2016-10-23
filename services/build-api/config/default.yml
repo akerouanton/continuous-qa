@@ -3,3 +3,11 @@ httpPort: 8000
 mongo:
   uri: mongodb://localhost
   db: builds
+
+amqp:
+  host: localhost
+  port: 5672
+  login: guest
+  password: guest
+  connectionTimeout: 1000
+  vhost: /

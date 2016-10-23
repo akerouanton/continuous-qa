@@ -1,7 +1,7 @@
 db.createCollection('projects');
 db.createCollection('builds');
 
-db.projects.insertOne({"projectUrn": "urn:gh:knplabs/gaufrette", "builds": 2});
+db.projects.insertOne({"projectUrn": "urn:gh:knplabs/gaufrette", "builds": 4});
 db.builds.insert([
   {
     "_id" : ObjectId("57efb186fcd8b6038c6f2d04"),

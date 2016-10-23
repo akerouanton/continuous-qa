@@ -1,7 +1,7 @@
 const _ = require('underscore');
 
-import {default as BuildRepository} from '../service/BuildRepository';
-import * as Error from '../Exception';
+import BuildRepository from '../service/repository/Build';
+import * as Error from '../Error';
 
 /**
  * @api {post} /build/:buildUrn/run Run a build
@@ -18,6 +18,7 @@ import * as Error from '../Exception';
  * @apiSuccess (200) {String}   branch
  * @apiSuccess (200) {Number}   buildId
  * @apiSuccess (200) {String}   repoUrl              Repository URL
+ * @apiSuccess (200) {String}   Ref                  Commit hash
  * @apiSuccess (200) {String}   state                Build state (<code>created, started, finished</code>)
  * @apiSuccess (200) {Object[]} stages
  * @apiSuccess (200) {String}   stages.state         Stage state (<code>queued, started, finished</code>)
@@ -42,7 +43,7 @@ export default function RunBuild(req, res, next) {
 
       return build.save();
     })
-    .then(build => res.status(200).json(build))
+    .then(build => res.status(200).json(build.toObject()))
     .catch((err) => {
       if (err instanceof Error.BuildNotFoundError) {
         return res.status(404).json({error: 'BuildNotFound'});

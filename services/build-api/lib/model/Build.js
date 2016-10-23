@@ -1,15 +1,17 @@
 const _ = require('underscore');
 
 import mongoose from 'mongoose';
-import ProjectRepository from '../service/ProjectRepository';
-import * as Error from '../Exception';
+import * as Error from '../Error';
 import {default as Stage, schema as stageSchema} from './Build/Stage';
+import emitter from '../service/EventEmitter';
 
 export const BUILD_STATES = ['created', 'queued', 'running', 'failed', 'succeeded'];
 
 function removeInternalFields(doc, ret) {
   delete ret.__v;
   delete ret._id;
+
+  ret.urn = doc.urn;
 
   return ret;
 }
@@ -19,6 +21,7 @@ export const schema = new mongoose.Schema({
   branch: {type: String, required: true},
   buildId: {type: String, required: true},
   repoUrl: {type: String, required: true},
+  ref: {type: String, required: true},
   state: {type: String, 'enum': BUILD_STATES, default: 'created', required: true},
   stages: [stageSchema]
 }, {toJSON: {transform: removeInternalFields}});
@@ -38,7 +41,7 @@ schema.methods.queue = function (stages) {
   }
 
   this.state = 'queued';
-  this.stages = _.map(stages, (stage, position) => Stage.pending(position+1, stage));
+  this.stages = _.map(stages, (stage, position) => Stage.pending(this, position, stage));
 
   return this;
 };
@@ -96,15 +99,19 @@ schema.methods.hasRunningStage = function () {
   return _.some(this.stages, stage => stage.isRunning());
 };
 
-schema.pre('validate', function (next) {
-  if (typeof this.buildId !== 'undefined') {
-    return next();
-  }
+schema.methods.getRunningStage = function () {
+  return _.find(this.stages, stage => stage.isRunning());
+};
 
-  ProjectRepository
-    .generateBuildId(this)
-    .then(next, next)
-  ;
+schema.pre('validate', function (next) {
+  emitter.emit('build.pre_validate', this, next);
+});
+schema.post('save', function (build) {
+  emitter.emit('build.post_save', build);
+});
+
+schema.virtual('urn').get(function () {
+  return `${this.projectUrn}:${this.buildId}`;
 });
 
 export default mongoose.model('Build', schema);

@@ -1,7 +1,7 @@
 const _ = require('underscore');
 
 import mongoose from 'mongoose';
-import * as Error from '../../Exception';
+import * as Error from '../../Error';
 import {schema as runnerSchema} from './Stage/Runner';
 
 export const STAGE_STATES = ['pending', 'running', 'failed', 'succeeded'];
@@ -13,6 +13,7 @@ function toJSON(doc, ret) {
 
   // Transform flat array of states into an associative array of runner name and state
   ret.runners = _.object(_.map(doc.runners, runner => runner.name), ret.runners);
+  ret.urn = doc.urn;
 
   return ret;
 }
@@ -23,16 +24,14 @@ export const schema = new mongoose.Schema({
   runners: [runnerSchema]
 }, {toJSON: {transform: toJSON}});
 
-schema.virtual('urn', function () {
-  return `${this.parent().urn}:${this.position}`;
-});
-
-schema.statics.pending = function (position, runners) {
-  return new Stage({
+schema.statics.pending = function (build, position, runners) {
+  const stage = new Stage({
     state: 'pending',
     position: position,
     runners: _.map(runners, runner => new Object({name: runner, state: 'pending'}))
   });
+  stage.build = build;
+  return stage;
 };
 
 schema.methods.run = function () {
@@ -92,6 +91,16 @@ schema.methods.hasSucceeded = function () {
 schema.methods.hasFailed = function () {
   return this.state === 'failed';
 };
+
+schema.virtual('urn').get(function () {
+  return `${this.build.urn}:${this.position}`;
+});
+schema.virtual('build').set(function (build) {
+  this._build = build;
+});
+schema.virtual('build').get(function () {
+  return this.parent() || this._build;
+})
 
 const Stage = mongoose.model('Stage', schema);
 export default Stage;

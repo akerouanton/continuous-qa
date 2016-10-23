@@ -1,4 +1,6 @@
-export class NotFoundError extends Error {}
+import ExtendableError from 'es6-error';
+
+export class NotFoundError extends ExtendableError {}
 
 export class BuildNotFoundError extends NotFoundError {
   constructor(projectUrn, buildId) {

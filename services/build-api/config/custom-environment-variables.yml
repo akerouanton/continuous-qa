@@ -3,3 +3,10 @@ httpPort: HTTP_PORT
 mongo:
   uri: MONGO_URI
   db: MONGO_DBNAME
+
+amqp:
+  host: AMQP_HOST
+  port: AMQP_PORT
+  login: AMQP_USER
+  password: AMQP_PASS
+  vhost: AMQP_VHOST

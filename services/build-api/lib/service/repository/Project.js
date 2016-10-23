@@ -1,6 +1,4 @@
-const logger = require('tracer').colorConsole();
-
-import Project from '../model/Project';
+import Project from '../../model/Project';
 
 export default class ProjectRepository {
   static generateBuildId(build) {

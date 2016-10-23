@@ -1,5 +1,5 @@
-import {default as BuildRepository} from '../service/BuildRepository';
-import {BuildNotFoundError} from '../Exception';
+import {default as BuildRepository} from '../service/repository/Build';
+import {BuildNotFoundError} from '../Error';
 
 /**
  * @api {get} /build/:buildUrn Get a specific build
@@ -13,6 +13,7 @@ import {BuildNotFoundError} from '../Exception';
  * @apiSuccess (200) {String}   branch
  * @apiSuccess (200) {Number}   buildId
  * @apiSuccess (200) {String}   repoUrl              Repository URL
+ * @apiSuccess (200) {String}   Ref                  Commit hash
  * @apiSuccess (200) {String}   state                Build state (<code>created, started, finished</code>)
  * @apiSuccess (200) {Object[]} stages
  * @apiSuccess (200) {String}   stages.state         Stage state (<code>queued, started, finished</code>)

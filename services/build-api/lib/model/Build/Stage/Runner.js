@@ -1,7 +1,7 @@
 const _ = require('underscore');
 
 import mongoose from 'mongoose';
-import * as Error from '../../../Exception';
+import * as Error from '../../../Error';
 
 export const RUNNER_STATES = ['pending', 'queued', 'running', 'failed', 'succeeded'];
 export const RUNNER_TRANSITIONS = {
@@ -11,8 +11,7 @@ export const RUNNER_TRANSITIONS = {
 };
 
 function toJSON(doc, ret) {
-  ret = ret.state;
-  return ret;
+  return {type: doc.name, state: doc.state, urn: `${doc.parent().urn}:${doc.name}`};
 }
 
 export const schema = new mongoose.Schema({
@@ -20,22 +19,24 @@ export const schema = new mongoose.Schema({
   state: {type: String, 'enum': RUNNER_STATES, required: true}
 }, {toJSON: {transform: toJSON}});
 
-schema.virtual('urn', function () {
-  return `${this.parent().urn}:${this.name}`;
-});
-
 schema.methods.queue = function () {
-  this.state = 'queued';
+  this._changeState('queued');
 };
 
 schema.methods.updateState = function (state) {
-  if (!_.contains(RUNNER_STATES, state)) {
-    throw new Error.InvalidStateError(state);
-  }
   if (!_.contains(RUNNER_TRANSITIONS[this.state], state)) {
     throw new Error.InvalidRunnerTransitionError(this, state);
   }
 
+  this._changeState(state);
+};
+
+schema.methods._changeState = function (state) {
+  if (!_.contains(RUNNER_STATES, state)) {
+    throw new Error.InvalidStateError(state);
+  }
+
+  this._stateUpdated = true;
   this.state = state;
 };
 

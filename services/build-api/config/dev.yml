@@ -1,2 +1,5 @@
 mongo:
   uri: mongodb://continuousqa_mongodb_1
+
+amqp:
+  host: continuousqa_rabbitmq_1

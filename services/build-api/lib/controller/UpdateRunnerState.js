@@ -1,29 +1,35 @@
-import {default as BuildRepository} from '../service/BuildRepository';
-import * as Error from '../Exception';
+const logger = require('tracer').colorConsole();
+
+import BuildRepository from '../service/repository/Build';
+import * as Error from '../Error';
 
 /**
- * @api {patch} /build/:buildUrn/:stage/:runner Update runner state
+ * @api {post} /build/:buildUrn/:stage/:runner Update runner state
  * @apiName UpdateRunnerState
  * @apiGroup build-api
  * @apiVersion 0.1.0
  * @apiParam {String} buildUrn URN of the build
- * @apiParam {Number} stage    Stage id (starts at 1)
- * @apiParam {String} runner   Name of the runner
- * @apiParam {String} state    New state (<code>form-data</code> parameter, either: <code>running</code>, <code>succeeded</code>, <code>failed</code>)
+ * @apiParam {String} stage   Stage id (starts at 0)
+ * @apiParam {String} runner  Runner name
+ * @apiParam {String} state   New state (<code>form-data</code> parameter, either: <code>running</code>, <code>succeeded</code>, <code>failed</code>)
  * @apiParamExample Parameters Example
  *     buildUrn = urn:gh:knplabs/gaufrette:1
  *     stage = 1
  *     runner = php-cs-fixer
  *     state = failed
+ * @apiSuccess (200) {String}   urn
  * @apiSuccess (200) {String}   projectUrn           Project URN
  * @apiSuccess (200) {String}   branch
  * @apiSuccess (200) {Number}   buildId
  * @apiSuccess (200) {String}   repoUrl              Repository URL
+ * @apiSuccess (200) {String}   ref                  Commit hash
  * @apiSuccess (200) {String}   state                Build state (<code>created, started, finished</code>)
  * @apiSuccess (200) {Object[]} stages
+ * @apiSuccess (200) {Number}   stages.position      Starts at 0
  * @apiSuccess (200) {String}   stages.state         Stage state (<code>queued, started, finished</code>)
  * @apiSuccess (200) {Object[]} stages.runners
- * @apiSuccess (200) {String}   stages.runners.name
+ * @apiSuccess (200) {String}   stages.runners.type
+ * @apiSuccess (200) {String}   stages.runners.urn
  * @apiSuccess (200) {String}   stages.runners.state
  * @apiError (400) InvalidState
  * @apiError (400) BuildNotRunning
@@ -34,7 +40,7 @@ import * as Error from '../Exception';
  * @apiError (404) RunnerNotFound
  */
 export default function UpdateRunnerState(req, res, next) {
-  const stageId = req.params.stage - 1;
+  const stageId = req.params.stage;
   const runnerName = req.params.runner;
   const state = req.body.state || null;
 
@@ -45,10 +51,10 @@ export default function UpdateRunnerState(req, res, next) {
   BuildRepository
     .get(req.params.projectUrn, req.params.buildId)
     .then((build) => {
-      // Stage ID starts at one in URL, but zero in collection
       build.updateRunnerState(stageId, runnerName, state);
+      build.save();
 
-      return build.save();
+      return build;
     })
     .then(build => res.status(200).json(build))
     .catch((err) => {
@@ -65,6 +71,7 @@ export default function UpdateRunnerState(req, res, next) {
       } else if (err instanceof Error.StageNotRunningError) {
         return res.status(400).json({error: 'StageNotRunning'});
       } else if (err instanceof Error.InvalidRunnerTransitionError) {
+        logger.debug(err);
         return res.status(400).json({error: 'TransitionDisallowed'});
       }
 
