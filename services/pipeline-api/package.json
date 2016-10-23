@@ -6,30 +6,35 @@
   "scripts": {
     "app": "./node_modules/.bin/babel-node bin/app.js",
     "dev-app": "./node_modules/.bin/nodemon --exec npm run app",
-    "tests": "npm run tests-e2e",
+    "tests": "npm run tests-unit && npm run tests-e2e",
+    "tests-unit": "./node_modules/.bin/mocha --compilers js:babel-core/register tests/unit/",
     "tests-e2e": "./node_modules/.bin/mocha --compilers js:babel-core/register tests/e2e/"
   },
   "author": "Albin Kerouanton <albin.kerouanton@knplabs.com>",
   "license": "MIT",
   "dependencies": {
     "babel-cli": "^6.16.0",
-    "babel-core": "^6.16.0",
     "babel-preset-es2015-node": "^6.1.1",
-    "chai": "^3.5.0",
-    "chakram": "^1.5.0",
     "config": "^1.21.0",
     "es6-error": "^3.2.0",
     "express": "^4.14.0",
     "js-yaml": "^3.6.1",
-    "mocha": "^3.1.0",
     "mongoose": "^4.6.1",
     "morgan": "^1.7.0",
-    "nodemon": "^1.10.2",
     "tracer": "^0.8.3"
   },
   "babel": {
     "presets": [
       "es2015-node"
     ]
+  },
+  "devDependencies": {
+    "babel-core": "^6.16.0",
+    "chai": "^3.5.0",
+    "chakram": "^1.5.0",
+    "mocha": "^3.1.0",
+    "nodemon": "^1.10.2",
+    "sinon": "^1.17.6",
+    "sinon-chai": "^2.8.0"
   }
 }

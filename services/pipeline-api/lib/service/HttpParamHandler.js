@@ -1,6 +1,6 @@
 export default class HttpParamHandler {
   static pipelineUrn(req, res, next, urn) {
-    const matches = /^(urn:gh:[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+):([a-zA-Z_\-\/\*]+)$/.exec(urn);
+    const matches = /^(urn:gh:[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+):([a-zA-Z0-9_\-\/\*]+)$/.exec(urn);
     if (matches === null) {
       return res.status(400).json({error: 'UrnNotValid'});
     }
@@ -19,7 +19,7 @@ export default class HttpParamHandler {
   }
 
   static branch(req, res, next, branch) {
-    if (/^[a-zA-Z_\-\/\*]+$/.test(branch)) {
+    if (/^[a-zA-Z0-9_\-\/\*]+$/.test(branch)) {
       return next();
     }
 

@@ -16,6 +16,10 @@ class PipelineAlreadyExistsError extends ExtendableError {
  * @apiParam {String} pipelineUrn Pipeline URN (project urn + branch pattern)
  * @apiParamExample Parameters Example
  *   pipelineUrn = urn:gh:knplabs/gaufrette:feature/*
+ * @apiSuccess (200) {String}   projectUrn
+ * @apiSuccess (200) {String}   pattern
+ * @apiSuccess (200) {Object[]} stages
+ * @apiSuccess (200) {String[]} stages.runners
  * @apiError (400) UrnNotValid           The pipeline URN is not valid
  * @apiError (409) PipelineAlreadyExists
  */

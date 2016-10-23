@@ -11,6 +11,10 @@ import {NoMatchingPipeline} from '../Exception';
  * @apiParamExample Parameters Example
  *   projectUrn = urn:gh:knplabs/gaufrette
  *   branch = master
+ * @apiSuccess (200) {String}   projectUrn
+ * @apiSuccess (200) {String}   pattern
+ * @apiSuccess (200) {Object[]} stages
+ * @apiSuccess (200) {String[]} stages.runners
  * @apiError (404) NoMatchingPipelineFound
  */
 export default class FindMatchingPipeline {
