@@ -1,67 +1,52 @@
 const Promise = require('promise');
+const logger = require('tracer').colorConsole();
 
-import Runner from '../service/Runner';
-import {RunnerAlreadyExistsError, AnalyzerNotSupportedError} from '../service/RunnerError';
+import {RunnerAlreadyExistsError, RunnerTypeNotSupportedError} from '../service/RunnerError';
 
 /**
- * @api {post} /runner/:buildUrn/:analyzer/start Start a new runner
+ * @api {put} /runner/:runnerUrn Start a new runner
  * @apiName StartRunner
  * @apiGroup runner-api
  * @apiVersion 0.1.0
- * @apiParam {String} buildUrn   Build URN
- * @apiParam {String} analyzer   Either <code>php-cs-fixer</code> or <code>phpqa</code>
- * @apiParam {String} repoUrl    URL of the repository to clone
- * @apiParam {String} reference  Either a commit hash, a tag or a branch
+ * @apiParam {String}   runnerUrn
+ * @apiParam {String}   runnerType
+ * @apiParam {Object[]} metadata
+ * @apiParam {Object[]} envVars
  * @apiParamExample Parameters Example
- *     buildUrn = urn:gh:knplabs/gaufrette:30
- *     analyzer = php-cs-fixer
- *     repoUrl = https://github.com/KnpLabs/Gaufrette
- *     reference = master
- * @apiError (400) UrnNotValid          The build URN is not valid
- * @apiError (400) MissingRepoUrl       <code>repoUrl</code> is missing
- * @apiError (400) MissingReference
- * @apiError (404) AnalyzerNotSupported
+ *     runnerUrn = urn:gh:knplabs/gaufrette:30:1:php-cs-fixer
+ *     runnerType = php-cs-fixer
+ *     metadata[buildUrn] = urn:gh:knplabs/gaufrette:30
+ *     envVars[REPO_URL] = https://github.com/KnpLabs/Gaufrette
+ *     envVars[GIT_REF] = master
+ * @apiError (400) UrnNotValid          The runner URN is not valid
+ * @apiError (400) MissingRunnerType
+ * @apiError (404) RunnerTypeNotSupported
  * @apiError (409) RunnerAlreadyCreated
  */
 export default class {
-  constructor(runner, artifactManager) {
+  constructor(runner) {
     this._runner = runner;
-    this._artifactManager = artifactManager;
   }
 
   handleRequest(req, res, next) {
-    const buildUrn = req.params.buildUrn;
-    const analyzer = req.params.analyzer;
-    const repoUrl = req.body.repoUrl || null;
-    const reference = req.body.reference || null;
+    const runnerUrn = req.params.runnerUrn;
+    const runnerType = req.body.runnerType || null;
+    const metadata = req.body.metadata || {};
+    const envVars = req.body.envVars || {};
 
-    if (repoUrl === null) {
-      res.status(400).json({ error: 'MissingRepoUrl' });
-      return;
-    }
-    if (reference === null) {
-      res.status(400).json({error: 'MissingReference'});
-      return;
+    if (runnerType === null) {
+      return res.status(400).json({error: 'MissingRunnerType'});
     }
 
-    const name = Runner.normalizeRunnerName(buildUrn, analyzer);
-
-    /*this
-      ._artifactManager
-      .createDirectory(name)*/
-    Promise.resolve(this._artifactManager.getDirectory(name))
-      .then((artifactDirectory) => {
-        return this
-          ._runner
-          .startRunner(buildUrn, analyzer, repoUrl, reference, artifactDirectory)
-        ;
-      })
+    this
+      ._runner
+      .startRunner(runnerUrn, runnerType, metadata, envVars)
       .then(() => {
-        res.sendStatus(200).end();
+        res.sendStatus(201).end();
       })
       .catch((err) => {
-        if (err instanceof AnalyzerNotSupportedError) {
-          res.status(404).json({ error: 'AnalyzerNotSupported'});
+        if (err instanceof RunnerTypeNotSupportedError) {
+          res.status(404).json({ error: 'RunnerTypeNotSupported'});
           return Promise.reject();
         }
         if (err instanceof RunnerAlreadyExistsError) {

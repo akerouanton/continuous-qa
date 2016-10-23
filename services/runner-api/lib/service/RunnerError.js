@@ -7,20 +7,20 @@ export class RunnerError extends ExtendableError {
   }
 }
 
-export class AnalyzerNotSupportedError extends RunnerError {
-  constructor(analyzer, previous = null) {
-    super(`Analyzer "${analyzer}" is not supported.`, previous);
+export class RunnerTypeNotSupportedError extends RunnerError {
+  constructor(runnerType, previous = null) {
+    super(`Runner type "${runnerType}" is not supported.`, previous);
   }
 }
 
 export class RunnerAlreadyExistsError extends RunnerError {
-  constructor(normalizedName, buildUrn, analyzer, previous = null) {
-    super(`Runner "${normalizedName}" for "${buildUrn}:${analyzer}" already exists.`, previous);
+  constructor(normalizedName, runnerUrn, previous = null) {
+    super(`Runner "${normalizedName}" for "${runnerUrn}" already exists.`, previous);
   }
 }
 
 export class RunnerNotFoundError extends RunnerError {
-  constructor(buildUrn, analyzer, previous = null) {
-    super(`Runner for "${buildUrn}:${analyzer}" not found.`, previous);
+  constructor(runnerUrn, previous = null) {
+    super(`Runner for "${runnerUrn}" not found.`, previous);
   }
 }

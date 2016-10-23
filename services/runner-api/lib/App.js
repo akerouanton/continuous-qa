@@ -3,61 +3,41 @@ const morgan = require('morgan');
 const Docker = require('dockerode-promise');
 const logger = require('tracer').colorConsole();
 const bodyParser = require('body-parser');
+const config = require('config');
 
 import Runner from './service/Runner';
-import ArtifactManager from './service/ArtifactManager';
-import StartController from './controller/StartController';
-import DropController from './controller/DropController';
+import router from './Router';
 
 export default class App {
-  constructor(config) {
+  constructor() {
     const docker = new Docker({socketPath: config.docker_socket});
 
-    this._runner = new Runner(docker, {labelPrefix: config.label_prefix});
-    this._artifactManager = new ArtifactManager(config.tmp_dir);
+    this._runner = new Runner(docker);
     this._express = express();
-    this._config = config;
 
     this.boot();
   }
 
   boot() {
-    const startController = new StartController(this._runner, this._artifactManager);
-    const dropController = new DropController(this._runner, this._artifactManager);
-
     this._express.use(morgan('combined'));
     this._express.use(bodyParser.json());
-    this._express.use(bodyParser.urlencoded({ extended: false }));
+    this._express.use(bodyParser.urlencoded({ extended: true }));
+    this._express.use(router(this._runner));
+    this._express.use((err, req, res, next) => {
+      let log = `${err.name}: ${err.message}`;
+      if (typeof err.stack !== 'undefined') {
+        log = err;
+      }
 
-    this._express.post('/runner/:buildUrn/:analyzer/start', startController.handleRequest.bind(startController));
-    this._express.post('/runner/:buildUrn/:analyzer/drop', dropController.handleRequest.bind(dropController));
-    this._express.param('buildUrn', this.validateBuildUrn);
-    this._express.use(this.errorHandler);
-  }
+      logger.error(log);
 
-  run() {
-    this._express.listen(this._config.http_port, () => {
-      logger.info(`Application started on port ${this._config.http_port}.`);
+      res.status(500).end();
     });
   }
 
-  validateBuildUrn(req, res, next, urn) {
-    if (/^urn:gh:[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+:\d+$/.test(urn)) {
-      next();
-      return;
-    }
-
-    res.status(400).json({error: 'UrnNotValid'});
-  }
-
-  errorHandler(err, req, res, next) { // 'next' mandatory, must not be removed
-    let log = `${err.name}: ${err.message}`;
-    if (typeof err.stack !== 'undefined') {
-      log = err;
-    }
-
-    logger.error(log);
-
-    res.status(500).end();
+  run() {
+    this._express.listen(config.http_port, () => {
+      logger.info(`Application started on port ${config.http_port}.`);
+    });
   }
 }
