@@ -1,0 +1,15 @@
+amqp:
+  host: continuousqa_rabbitmq_1
+  port: 5672
+  login: guest
+  password: guest
+  connectionTimeout: 1000
+  vhost: /
+  exchange: amq.topic
+
+endpoints:
+  runner: http://localhost/runner
+  build: http://localhost/build
+  pipeline: http://localhost/pipelines
+
+labelPrefix: com.continuousqa

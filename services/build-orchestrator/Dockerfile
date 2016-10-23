@@ -1,4 +1,4 @@
-FROM node:6.5-slim
+FROM node:6.8-slim
 
 WORKDIR /usr/src/app
 COPY ./package.json /usr/src/app/

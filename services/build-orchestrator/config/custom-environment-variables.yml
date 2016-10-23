@@ -1,0 +1,14 @@
+amqp:
+  host: AMQP_HOST
+  port: AMQP_PORT
+  login: AMQP_USER
+  password: AMQP_PASS
+  vhost: AMQP_VHOST
+  exchange: AMQP_EXCHANGE
+
+endpoints:
+  runner: RUNNER_ENDPOINT
+  build: BUILD_ENDPOINT
+  pipeline: PIPELINE_ENDPOINT
+
+labelPrefix: LABEL_PREFIX

@@ -1,17 +1,14 @@
 const amqp = require('amqp');
 const logger = require('tracer').colorConsole();
+const config = require('config');
 
 export default class {
-  constructor(emitter, config) {
+  constructor(emitter) {
     this._emitter = emitter;
-    this._config = config;
   }
 
   connect() {
-    this._connection = amqp.createConnection({
-      host: this._config.host,
-      port: this._config.port
-    });
+    this._connection = amqp.createConnection(config.amqp);
 
     this._connection.on('ready', this._onConnectionReady.bind(this));
     this._connection.on('error', (err) => {
@@ -23,23 +20,27 @@ export default class {
   _onConnectionReady() {
     logger.info('AMQP connection ready.');
 
-    this._connection.queue('start_runner', { durable: true, autoDelete: false }, (queue) => {
-      queue.bind(this._config.exchange, 'build.created');
-      logger.info('Queue "start_runner" declared, binding done.');
+    this._subscribeTo('start_build', 'build.created');
+    this._subscribeTo('start_runner', 'runner.queued');
+    this._subscribeTo('runner_gc', 'runner.die');
+    this._subscribeTo('drop_runner', 'runner.finished');
+  }
+
+  _subscribeTo(queueName, routingKey) {
+    this._connection.queue(queueName, { durable: true, autoDelete: false }, (queue) => {
+      queue.bind(config.amqp.exchange, routingKey);
+      logger.info(`Queue "${queueName}" declared, binding done.`);
 
       queue.subscribe({ ack: true }, (message) => {
-        logger.info('New message received.', message);
+        logger.debug(`New message on "${queueName}" queue.`);
 
-        this._emitter.emit('buildCreated', message);
-      });
-
-      this._emitter.on('runnersStarted', () => {
-        queue.shift(false, false);
-      });
-      this._emitter.on('error', (err) => {
-        logger.warn(err);
-
-        queue.shift(true, false);
+        this
+          ._emitter
+          .emit(routingKey, message)
+          .then(
+            () => queue.shift(false, false),
+            () => queue.shift(true, false)
+          );
       });
     });
   }
