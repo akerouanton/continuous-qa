@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  docker:
+    extends:
+      file: ../plugins/common.yml
+      service: docker
+    command: dev-app
+    volumes:
+      - "../plugins/runner-platform/docker/:/usr/src/app/"
+
+  docker-events:
+    extends:
+      file: ../plugins/common.yml
+      service: docker-events
+    command: dev-app
+    volumes:
+        - "../plugins/runner-platform/docker-events/:/usr/src/app/"
+
+  docker-log-streamer:
+    extends:
+      file: ../plugins/common.yml
+      service: docker-log-streamer
+    command: dev-app
+    volumes:
+      - "../plugins/runner-platform/docker-log-streamer:/usr/src/app/"

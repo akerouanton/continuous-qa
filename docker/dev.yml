@@ -1,17 +1,26 @@
 version: '2'
 
 services:
-  rabbitmq:
+  docs:
+    build:
+      context: ..
+      dockerfile: docker/docs/Dockerfile
+    restart: never
+    command: ["dev-generate-docs"]
+    volumes:
+      - "..:/usr/src/app"
+      - "../docs:/usr/src/app/docs"
+
+  logstash:
     extends:
-      file: common.yml
-      service: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+      file: ../docker/common.yml
+      service: logstash
+    volumes:
+      - "../docker/logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf"
 
   mongodb:
     extends:
-      file: common.yml
+      file: ../docker/common.yml
       service: mongodb
     ports:
       - "27017:27017"
@@ -23,123 +32,19 @@ services:
 
   nginx:
     extends:
-      file: common.yml
+      file: ../docker/common.yml
       service: nginx
     volumes_from:
       - front
       - docs
     volumes:
-      - "./nginx/nginx.conf:/etc/nginx/conf.d/default.conf"
+      - "../docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf"
       - "../docs/:/usr/src/app/docs"
 
-  docs:
-    build:
-      context: ..
-      dockerfile: docker/docs/Dockerfile
-    restart: never
-    command: ["dev-generate-docs"]
-    volumes:
-      - "..:/usr/src/app"
-      - "../docs:/usr/src/app/docs"
-
-  build-api:
+  rabbitmq:
     extends:
-      file: common.yml
-      service: build-api
-    command: ["dev-app"]
-    volumes:
-      - "../services/build-api/:/usr/src/app/"
-
-  artifact-api:
-    extends:
-      file: common.yml
-      service: artifact-api
-    command: dev-app
-    volumes:
-      - "../services/artifact-api/bin:/usr/src/app/bin/"
-      - "../services/artifact-api/lib:/usr/src/app/lib/"
-
-  front:
-    extends:
-      file: common.yml
-      service: front
-
-  user-api:
-    extends:
-      file: common.yml
-      service: user-api
-    command: dev-app
-    volumes:
-      - "../services/user-api/:/usr/src/app/"
-
-  runner-api:
-    extends:
-      file: common.yml
-      service: runner-api
-    command: dev-app
-    volumes:
-      - "../services/runner-api/:/usr/src/app/"
-      - "/tmp/continuousqa/artifacts/:/tmp/continuousqa/artifacts/"
-
-  build-orchestrator:
-    extends:
-      file: common.yml
-      service: build-orchestrator
-    command: dev-app
-    volumes:
-      - "../services/build-orchestrator/:/usr/src/app/"
-
-  docker-events:
-    extends:
-      file: common.yml
-      service: docker-events
-    command: dev-app
-    volumes:
-      - "../services/docker-events/:/usr/src/app/"
-
-  gh-hooks:
-    extends:
-      file: common.yml
-      service: gh-hooks
-    command: dev-start
-    volumes:
-      - "../services/gh-hooks/:/usr/src/app/"
-
-  docker-log-streamer:
-    extends:
-      file: common.yml
-      service: docker-log-streamer
-    command: dev-start
-    volumes:
-      - "../services/docker-log-streamer:/usr/src/app/"
-
-  logstash:
-    extends:
-      file: common.yml
-      service: logstash
-    volumes:
-      - "./logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf"
-
-  log-api:
-    extends:
-      file: common.yml
-      service: log-api
-    command: dev-start
-    volumes:
-      - "../services/log-api/:/usr/src/app/"
-
-  pipeline-api:
-    extends:
-      file: common.yml
-      service: pipeline-api
-    command: dev-app
-    volumes:
-      - "../services/pipeline-api/:/usr/src/app/"
-
-  plugin-api:
-    extends:
-      file: common.yml
-      service: plugin-api
-    command: dev-app
-    volumes:
-      - "../services/plugin-api/:/usr/src/app/"
+      file: ../docker/common.yml
+      service: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"

@@ -1,3 +1,4 @@
+const Promise = require('bluebird');
 const os = require('os');
 const crypto = require('crypto');
 const logger = require('tracer').colorConsole();

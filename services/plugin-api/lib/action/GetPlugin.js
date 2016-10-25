@@ -10,10 +10,11 @@ import PluginRepository from '../service/PluginRepository';
  * @apiGroup plugin-api
  * @apiVersion 0.2.0
  * @apiParam {String} name
- * @apiSuccess (200) {String} name
- * @apiSuccess (200) {String} type
- * @apiSuccess {String[]} dependencies Dependency name as key, version as value
- * @apiSuccess {Object[]} hooks
+ * @apiSuccess (200) {String}   name
+ * @apiSuccess (200) {String}   type
+ * @apiSuccess (200) {String[]} dependencies Dependency name as key, version as value
+ * @apiSuccess (200) {Object[]} endpoints
+ * @apiSuccess (200) {Object[]} hooks
  */
 export function handleGetPlugin(req, res, next) {
   PluginRepository

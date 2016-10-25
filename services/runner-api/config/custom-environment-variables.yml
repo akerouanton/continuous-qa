@@ -1,3 +1,1 @@
-docker_socket: DOCKER_SOCKET
 http_port: HTTP_PORT
-label_prefix: LABEL_PREFIX

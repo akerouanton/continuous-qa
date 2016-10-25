@@ -1,12 +1,11 @@
 import PluginRepository from '../service/PluginRepository';
 
 /**
- * @api {demete} /plugin/:name Remove plugin
+ * @api {delete} /plugin/:name Remove plugin
  * @apiName RemovePlugin
  * @apiGroup plugin-api
  * @apiVersion 0.2.0
- * @apiParam {String}   name
- * @apiSuccess (204)
+ * @apiParam {String} name
  */export function handleRemovePlugin(req, res, next) {
   const {name} = req.params;
 

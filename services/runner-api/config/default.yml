@@ -1,3 +1,1 @@
-docker_socket: /var/run/docker.sock
 http_port: 8000
-label_prefix: com.continuousqa

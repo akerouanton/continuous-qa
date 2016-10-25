@@ -3,11 +3,10 @@
 
 COMPOSE_PROJECT_NAME?=continuousqa
 export $COMPOSE_PROJECT_NAME
-FIG=docker-compose -p $(COMPOSE_PROJECT_NAME) -f $(COMPOSE_FILE)
+ENV=dev
+FIG=docker-compose -p $(COMPOSE_PROJECT_NAME) -f docker/$(ENV).yml -f plugins/${ENV}.yml -f services/${ENV}.yml
 ANALYZERS=$(shell ls analyzers/)
 SERVICES=artifact-api build-api log-api pipeline-api
-ENV=dev
-COMPOSE_FILE=docker/$(ENV).yml
 
 comma:= ,
 empty:=

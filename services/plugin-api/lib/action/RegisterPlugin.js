@@ -12,11 +12,13 @@ import PluginRepository from '../service/PluginRepository';
  * @apiParam {String}   name
  * @apiParam {String}   type         Valid types: <code>task-runner</code>, <code>runner</code>, <code>scm-platform</code>
  * @apiParam {String[]} dependencies Dependency name as key, version as value
+ * @apiParam {Object[]} endpoints
  * @apiParam {Object[]} hooks
- * @apiSuccess (200) {String} name
- * @apiSuccess (200) {String} type
- * @apiSuccess String[]} dependencies Dependency name as key, version as value
- * @apiSuccess {Object[]} hooks
+ * @apiSuccess (200) {String}   name
+ * @apiSuccess (200) {String}   type
+ * @apiSuccess (200) {String[]} dependencies Dependency name as key, version as value
+ * @apiSuccess (200) {Object[]} endpoints
+ * @apiSuccess (200) {Object[]} hooks
  * @apiError (400) MissingType
  * @apiError (400) InvalidType
  * @apiError (400) MissingDependencies
@@ -24,8 +26,8 @@ import PluginRepository from '../service/PluginRepository';
  */
 export function handleRegisterPlugin(req, res, next) {
   const {name} = req.params;
-  const {type, hooks} = req.body;
-  const plugin = new Plugin({name, type, hooks, enabled: true});
+  const {type, endpoints, hooks} = req.body;
+  const plugin = new Plugin({name, type, endpoints, hooks, enabled: true});
 
   PluginRepository
     .upsert(plugin)

@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  docker:
+    build: ./runner-platform/docker
+    expose: ['8000']
+    env_file: ./runner-platform/docker/.env
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  docker-events:
+    build: ./runner-platform/docker-events
+    env_file: ./runner-platform/docker-events/.env
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  docker-log-streamer:
+    build: ./runner-platform/docker-log-streamer
+    env_file: ./runner-platform/docker-log-streamer/.env
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"

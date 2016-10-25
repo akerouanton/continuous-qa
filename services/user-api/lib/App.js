@@ -10,6 +10,12 @@ import ConnectedController from './controller/ConnectedController';
 import ProfileController from './controller/ProfileController';
 import DisconnectController from './controller/DisconnectController';
 
+/**
+ * @api {get} /connect/github Connect via Github
+ * @apiName GithubConnect
+ * @apiGroup user-api
+ * @apiVersion 0.1.0
+ */
 export default class {
   constructor(config) {
     this._config  = config;

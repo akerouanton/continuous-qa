@@ -10,5 +10,6 @@ endpoints:
   runner: RUNNER_ENDPOINT
   build: BUILD_ENDPOINT
   pipeline: PIPELINE_ENDPOINT
+  plugin: PLUGIN_ENDPOINT
 
 labelPrefix: LABEL_PREFIX

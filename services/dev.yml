@@ -1,0 +1,72 @@
+version: '2'
+
+services:
+  artifact-api:
+    extends:
+      file: ../services/common.yml
+      service: artifact-api
+    command: dev-app
+    volumes:
+      - "../services/artifact-api/bin:/usr/src/app/bin/"
+      - "../services/artifact-api/lib:/usr/src/app/lib/"
+
+  build-api:
+    extends:
+      file: ../services/common.yml
+      service: build-api
+    command: ["dev-app"]
+    volumes:
+      - "../services/build-api/:/usr/src/app/"
+
+  build-orchestrator:
+    extends:
+      file: ../services/common.yml
+      service: build-orchestrator
+    command: dev-app
+    volumes:
+      - "../services/build-orchestrator/:/usr/src/app/"
+
+  front:
+    extends:
+      file: ../services/common.yml
+      service: front
+
+  gh-hooks:
+    extends:
+      file: ../services/common.yml
+      service: gh-hooks
+    command: dev-start
+    volumes:
+      - "../services/gh-hooks/:/usr/src/app/"
+
+  log-api:
+    extends:
+      file: ./../services/common.yml
+      service: log-api
+    command: dev-start
+    volumes:
+      - "../services/log-api/:/usr/src/app/"
+
+  pipeline-api:
+    extends:
+      file: ../services/common.yml
+      service: pipeline-api
+    command: dev-app
+    volumes:
+      - "../services/pipeline-api/:/usr/src/app/"
+
+  plugin-api:
+    extends:
+      file: ../services/common.yml
+      service: plugin-api
+    command: dev-app
+    volumes:
+      - "../services/plugin-api/:/usr/src/app/"
+
+  user-api:
+    extends:
+      file: ../services/common.yml
+      service: user-api
+    command: dev-app
+    volumes:
+      - "../services/user-api/:/usr/src/app/"

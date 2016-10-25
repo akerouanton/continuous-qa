@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+  artifact-api:
+      build: artifact-api
+      env_file: artifact-api/.env
+      environment:
+        - MONGO_HOST_PORT=continuousqa_mongodb_1:27017
+
+  build-api:
+    build: build-api
+    env_file: build-api/.env
+
+  build-orchestrator:
+      build: build-orchestrator
+      env_file: build-orchestrator/.env
+
+  front:
+    build: front
+    volumes:
+      - "./front/web/:/var/www/app/"
+
+  gh-hooks:
+    build: gh-hooks
+    env_file: gh-hooks/.env
+
+  log-api:
+    build: log-api
+    env_file: log-api/.env
+
+  pipeline-api:
+    build: pipeline-api
+    env_file: pipeline-api/.env
+
+  plugin-api:
+    build: plugin-api
+    env_file: plugin-api/.env
+
+  user-api:
+    build: user-api
+    expose: ['3000']
+    env_file: user-api/.env
+    environment:
+      - AMQP_HOST=continuousqa_rabbitmq_1
+      - MONGO_URI=mongodb://continuousqa_mongodb_1:27017

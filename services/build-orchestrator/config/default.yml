@@ -11,5 +11,6 @@ endpoints:
   runner: http://localhost/runner
   build: http://localhost/build
   pipeline: http://localhost/pipelines
+  plugin: https://localhost/plugin
 
 labelPrefix: com.continuousqa

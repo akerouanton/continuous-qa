@@ -3,10 +3,10 @@ import {PluginNotFoundError} from '../domain/errors';
 
 export default class PluginRepository {
   static upsert(plugin) {
-    const {name, type, hooks} = plugin;
+    const {name, type, endpoints, hooks} = plugin;
 
     return Plugin
-      .findOneAndUpdate({name}, {name, type, hooks})
+      .findOneAndUpdate({name}, {name, type, endpoints, hooks})
       .exec()
       .then((result) => {
         if (result === null) {

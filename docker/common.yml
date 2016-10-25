@@ -1,8 +1,8 @@
 version: '2'
 
 services:
-  rabbitmq:
-    build: rabbitmq
+  logstash:
+    build: logstash
 
   mongodb:
     build: mongodb
@@ -12,67 +12,5 @@ services:
     ports:
       - "80:80"
 
-  build-api:
-    build: ../services/build-api
-    env_file: ../services/build-api/.env
-
-  artifact-api:
-    build: ../services/artifact-api
-    env_file: ../services/artifact-api/.env
-    environment:
-      - MONGO_HOST_PORT=continuousqa_mongodb_1:27017
-
-  front:
-    build: ../services/front
-    volumes:
-      - "../services/front/web/:/var/www/app/"
-
-  user-api:
-    build: ../services/user-api
-    expose: ['3000']
-    env_file: ../services/user-api/.env
-    environment:
-      - AMQP_HOST=continuousqa_rabbitmq_1
-      - MONGO_URI=mongodb://continuousqa_mongodb_1:27017
-
-  runner-api:
-    build: ../services/runner-api
-    expose: ['8000']
-    env_file: ../services/runner-api/.env
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-
-  build-orchestrator:
-    build: ../services/build-orchestrator
-    env_file: ../services/build-orchestrator/.env
-
-  docker-events:
-    build: ../services/docker-events
-    env_file: ../services/docker-events/.env
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-
-  gh-hooks:
-    build: ../services/gh-hooks
-    env_file: ../services/gh-hooks/.env
-
-  docker-log-streamer:
-    build: ../services/docker-log-streamer
-    env_file: ../services/docker-log-streamer/.env
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-
-  logstash:
-    build: logstash
-
-  log-api:
-    build: ../services/log-api
-    env_file: ../services/log-api/.env
-
-  pipeline-api:
-    build: ../services/pipeline-api
-    env_file: ../services/pipeline-api/.env
-
-  plugin-api:
-    build: ../services/plugin-api
-    env_file: ../services/plugin-api/.env
+  rabbitmq:
+      build: rabbitmq

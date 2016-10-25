@@ -5,6 +5,13 @@ Multi-tenant CI platform based on Docker, supporting pipelines and written in Ja
 Version 0.1 focus on API endpoints. For now best front-end is the apidoc (auto-generated/auto-updated as soon as you 
 start the stack).
 
+Current features:
+* Artifacts
+* Log streaming & storing
+* Integration with Github (starts build on PR)
+* Pipelines (parallel & sequential tasks execution)
+* Task execution via plugins (only docker for now)
+
 **Requirements:**
   * Docker: >= 1.12
   * Docker Compose: >= 1.8

@@ -12,6 +12,7 @@ import {displayPluginList as halResponder} from '../responder/hal';
  * @apiSuccess (200) {String}   plugins.type
  * @apiSuccess (200) {String}   plugins.state
  * @apiSuccess (200) {String[]} plugins.dependencies Dependency name as key, version as value
+ * @apiSuccess (200) {Object[]} plugins.endpoints
  * @apiSuccess (200) {Object[]} plugins.hooks
  */
 export function handleListPlugins(req, res, next) {

@@ -11,6 +11,7 @@ export const schema = new mongoose.Schema({
   type: {type: String, 'enum': PLUGIN_TYPES, required: true},
   enabled: {type: Boolean, required: true},
   // dependencies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Dependency'}],
+  endpoints: [String],
   hooks: [String]
 });
 

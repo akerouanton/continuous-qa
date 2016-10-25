@@ -2,4 +2,5 @@
 !/docs/.gitkeep
 /dumps/*
 !/dumps/.gitkeep
+/plugins/**/.env
 /services/**/.env

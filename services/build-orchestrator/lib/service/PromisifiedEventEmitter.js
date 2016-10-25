@@ -18,11 +18,12 @@ export default class PromisifiedEventEmitter {
       return Promise.resolve();
     }
 
-    try {
-      return Promise.all(_.values(_.map(this._listeners[eventName], listener => listener(...data))));
-    } catch (err) {
-      this.emit('error', err);
-      return Promise.reject(err);
-    }
+    return Promise
+      .all(_.values(_.map(this._listeners[eventName], listener => listener(...data))))
+      .catch((err) => {
+        this.emit('error', err);
+        return Promise.reject(err);
+      })
+    ;
   }
 }
