@@ -1,5 +1,3 @@
-const Promise = require('promise');
-
 import {RunnerNotFoundError} from '../service/RunnerError';
 import {HttpClientError} from '../errors';
 

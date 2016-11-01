@@ -8,6 +8,8 @@ export default class LogStreamer {
   }
 
   startStreaming(containerId, containerMetadata) {
+    logger.debug(`Start streaming logs for "${containerId}".`, {containerId, containerMetadata});
+
     const container = this._docker.getContainer(containerId);
     const logStream = new stream.PassThrough();
 
@@ -15,7 +17,7 @@ export default class LogStreamer {
     logStream.on('data', (chunk) => {
       const log = chunk.slice(1);
 
-      logger.info('New log message received.', log);
+      logger.debug(`New log message received for "${containerId}".`, {containerId, containerMetadata, log});
       this._emitter.emit('logReceived', containerId, containerMetadata, log);
     });
 

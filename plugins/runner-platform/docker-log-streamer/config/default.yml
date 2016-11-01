@@ -1,0 +1,3 @@
+docker_socket: '/var/run/docker.sock'
+container_label: com.continuousqa.runner
+runner_urn_label: com.continuousqa.runnerUrn

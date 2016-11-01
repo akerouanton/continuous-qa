@@ -12,6 +12,7 @@
   "dependencies": {
     "babel-cli": "^6.16.0",
     "babel-preset-es2015-node": "^6.1.1",
+    "bluebird": "^3.4.6",
     "body-parser": "^1.15.2",
     "config": "^1.21.0",
     "dockerode": "^2.3.1",
@@ -21,9 +22,15 @@
     "halson": "^2.3.1",
     "js-yaml": "^3.6.1",
     "morgan": "^1.7.0",
-    "tracer": "^0.8.3"
+    "tracer": "^0.8.3",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015-node"
+    ]
   }
 }

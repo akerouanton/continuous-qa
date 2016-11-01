@@ -1,30 +1,27 @@
 const Docker = require('dockerode');
 const EventEmitter = require('events');
 const logger = require('tracer').colorConsole();
+const config = require('config');
 
 import EventWatcher from './services/EventWatcher';
 import LogStreamer from './services/LogStreamer';
 import ZMQPublisher from './services/ZMQPublisher';
 
 export default class App {
-  constructor(config) {
-    const docker = new Docker({socketPath: config.docker.socketPath});
+  constructor() {
+    logger.debug(config);
+    const docker = new Docker({socketPath: config.docker_socket});
 
-    this._emitter = new EventEmitter();
-    this._watcher = new EventWatcher(docker, this._emitter, config.docker.containerLabel);
-    this._streamer = new LogStreamer(docker, this._emitter);
+    this._emitter   = new EventEmitter();
+    this._watcher   = new EventWatcher(docker, this._emitter, config.container_label);
+    this._streamer  = new LogStreamer(docker, this._emitter);
     this._publisher = new ZMQPublisher();
 
     this._boot();
   }
 
   _boot() {
-    this._emitter.on('runnerCreated', (containerId, containerMetadata) => {
-      logger.info('New runner created, start streaming logs.');
-
-      this._streamer.startStreaming(containerId, containerMetadata);
-    });
-
+    this._emitter.on('runnerCreated', this._streamer.startStreaming.bind(this._streamer));
     this._emitter.on('logReceived', this._onLogReceived.bind(this));
 
     this._emitter.on('error', (err) => {
@@ -39,7 +36,7 @@ export default class App {
   }
 
   _onLogReceived(containerId, containerMetadata, log) {
-    const runnerUrn = containerMetadata['com.continuousqa.runnerUrn'];
+    const runnerUrn = containerMetadata[`${config.runner_urn_label}`];
 
     if (!runnerUrn) {
       logger.error('Missing runnerUrn from container metadata.');

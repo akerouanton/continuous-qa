@@ -21,14 +21,14 @@ import {HttpClientError} from '../errors';
  * @apiError (404) RunnerTypeNotSupported
  * @apiError (409) RunnerAlreadyCreated
  */
-export default class CreateRunner {
+export default class StartRunner {
   constructor(runner) {
     this._runner = runner;
   }
 
   handleRequest(req, res, next) {
     const runnerUrn = req.params.runnerUrn;
-    const runnerType = req.body.runnerType || null;
+    const runnerType = req.body.runner || null;
     const metadata = req.body.metadata || {};
     const envVars = req.body.envVars || {};
 
