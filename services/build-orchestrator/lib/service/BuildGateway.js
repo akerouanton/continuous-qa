@@ -22,12 +22,12 @@ export function fetchBuild(buildUrn) {
 
 export function runBuild(buildUrn, stages) {
   const url = `${config.endpoints.build}/${encodeURIComponent(buildUrn)}/run`;
-  logger.debug(`Starting build "${buildUrn}" with ${stages.length} stage(s).`);
+  logger.debug(`Starting build "${buildUrn}" with ${stages.length} stage(s).`, stages[0].tasks);
 
   return post({url, form: {stages}})
     .then((response) => {
       if (response.statusCode !== 200) {
-        throw new Error('Unable to run build.');
+        throw new Error(`Unable to run build. Response: ${response.body}`);
       }
 
       logger.debug(`Build "${buildUrn}" started.`);
@@ -35,17 +35,17 @@ export function runBuild(buildUrn, stages) {
     });
 }
 
-export function updateRunnerState({buildUrn, stage, runnerType, exitCode, state}) {
-  const url = `${config.endpoints.build}/${encodeURIComponent(buildUrn)}/${stage}/${runnerType}`;
+export function updateTaskState({buildUrn, stageId, taskName, state}) {
+  const url = `${config.endpoints.build}/${encodeURIComponent(buildUrn)}/${stageId}/${taskName}`;
   const form = {state};
   logger.debug(`Updating build "${buildUrn}" status, form: "${JSON.stringify(form)}".`);
 
   return post({url, form}).then(response => {
-    console.log(response.statusCode, response.body);
+    logger.debug(response.statusCode, response.body);
     if (response.statusCode !== 200) {
       throw new Error(
-        'An error occured while updating build status.',
-        { runnerUrn: runner.runnerUrn, url: url, state: state, statusCode: response.statusCode, body: response.body }
+        'An error occurred while updating build status.',
+        {buildUrn, stageId, taskName, state}
       );
     }
 

@@ -21,9 +21,9 @@ export default class {
     logger.info('AMQP connection ready.');
 
     this._subscribeTo('start_build', 'build.created');
-    this._subscribeTo('start_runner', 'runner.queued');
-    this._subscribeTo('runner_gc', 'runner.die');
-    this._subscribeTo('drop_runner', 'runner.finished');
+    this._subscribeTo('start_task_runner', 'task.queued');
+    this._subscribeTo('finish_task', 'runner.die');
+    this._subscribeTo('drop_task_runner', 'task.finished');
   }
 
   _subscribeTo(queueName, routingKey) {

@@ -1,9 +1,9 @@
 const logger = require('tracer').colorConsole();
 
-import BuildCreated from './BuildCreated';
-import BuildRunnerFinished from './BuildRunnerFinished';
-import BuildRunnerQueued from './BuildRunnerQueued';
-import RunnerDie from './RunnerDie';
+import {onBuildCreated} from './BuildCreated';
+import {onTaskQueued} from './TaskQueued';
+import {onTaskFinished} from './TaskFinished';
+import {onRunnerDie} from './RunnerDie';
 
 function log(key) {
   return (message, headers, deliveryInfo) => {
@@ -13,13 +13,13 @@ function log(key) {
 
 export default function bindHandlers(emitter) {
   emitter.on('build.created', log('build.created'));
-  emitter.on('build.created', BuildCreated);
-  emitter.on('runner.queued', log('runner.queued'));
-  emitter.on('runner.queued', BuildRunnerQueued);
+  emitter.on('build.created', onBuildCreated);
+  emitter.on('task.queued', log('task.queued'));
+  emitter.on('task.queued', onTaskQueued);
   emitter.on('runner.die', log('runner.die'));
-  emitter.on('runner.die', RunnerDie);
-  emitter.on('runner.finished', log('runner.finished'));
-  emitter.on('runner.finished', BuildRunnerFinished);
+  emitter.on('runner.die', onRunnerDie);
+  emitter.on('task.finished', log('task.finished'));
+  emitter.on('task.finished', onTaskFinished);
 
   emitter.on('error', (err) => logger.warn(err));
 };
