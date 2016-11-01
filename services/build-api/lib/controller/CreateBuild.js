@@ -24,9 +24,9 @@ import Build from '../model/Build';
  * @apiSuccess (200) {String}   state                Build state (<code>created, started, finished</code>)
  * @apiSuccess (200) {Object[]} stages
  * @apiSuccess (200) {String}   stages.state         Stage state (<code>queued, started, finished</code>)
- * @apiSuccess (200) {Object[]} stages.runners
- * @apiSuccess (200) {String}   stages.runners.name
- * @apiSuccess (200) {String}   stages.runners.state
+ * @apiSuccess (200) {Object[]} stages.tasks
+ * @apiSuccess (200) {String}   stages.tasks.name
+ * @apiSuccess (200) {String}   stages.tasks.state
  * @apiError (400) MissingBranch
  * @apiError (400) MissingRepoUrl
  * @apiError (400) MissingRef

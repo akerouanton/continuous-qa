@@ -4,7 +4,7 @@ const _ = require('underscore');
 import CreateBuild from './controller/CreateBuild';
 import GetBuild from './controller/GetBuild';
 import GetBuildHistory from './controller/GetBuildHistory';
-import UpdateRunnerState from './controller/UpdateRunnerState';
+import UpdateTaskState from './controller/UpdateTaskState';
 import RunBuild from './controller/RunBuild';
 import HttpParamHandler from './service/http/ParamHandler';
 
@@ -12,7 +12,7 @@ const routes = {
   'CreateBuild': {method: 'post', pattern: '/builds/:projectUrn/new', handler: CreateBuild, params: ['projectUrn']},
   'GetBuild': {method: 'get', pattern: '/build/:buildUrn', handler: GetBuild, params: ['buildUrn']},
   'GetBuildHistory': {method: 'get', pattern: '/builds/:projectUrn', handler: GetBuildHistory, params: ['projectUrn']},
-  'UpdateRunnerState': {method: 'post', pattern: '/build/:buildUrn/:stage/:runner', handler: UpdateRunnerState, params: ['runnerUrn']},
+  'UpdateTaskState': {method: 'post', pattern: '/build/:buildUrn/:stage/:task', handler: UpdateTaskState, params: ['buildUrn', 'stage', 'task']},
   'RunBuild': {method: 'post', pattern: '/build/:buildUrn/run', handler: RunBuild, params: ['buildUrn']}
 };
 
@@ -27,7 +27,7 @@ export default function () {
   router.param('projectUrn', HttpParamHandler.projectUrn);
   router.param('buildUrn', HttpParamHandler.buildUrn);
   router.param('stage', HttpParamHandler.stage);
-  router.param('runner', HttpParamHandler.runner);
+  router.param('task', HttpParamHandler.task);
 
   return router;
 }

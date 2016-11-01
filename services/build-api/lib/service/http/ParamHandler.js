@@ -29,11 +29,11 @@ export default class HttpParamHandler {
     res.status(400).json({error: 'InvalidStage'});
   }
 
-  static runner(req, res, next, branch) {
+  static task(req, res, next, branch) {
     if (/^[a-zA-Z_\-]+$/.test(branch)) {
       return next();
     }
 
-    res.status(400).json({error: 'InvalidRunner'});
+    res.status(400).json({error: 'InvalidTask'});
   }
 }

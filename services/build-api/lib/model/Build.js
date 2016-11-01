@@ -60,12 +60,12 @@ schema.methods.run = function () {
   _.first(this.getPendingStages()).run();
 };
 
-schema.methods.updateRunnerState = function (stageId, runnerName, state) {
+schema.methods.updateTaskState = function (stageId, taskName, state) {
   if (this.state !== 'running') {
     throw new Error.BuildNotRunningError(this);
   }
 
-  this.stage(stageId).updateRunnerState(runnerName, state);
+  this.stage(stageId).updateTaskState(taskName, state);
 
   if (this.stage(stageId).isFinished() && this.stage(stageId).hasSucceeded()) {
     if (!this.hasPendingStages()) {

@@ -2,17 +2,14 @@ const _ = require('underscore');
 
 import mongoose from 'mongoose';
 import * as Error from '../../Error';
-import {schema as runnerSchema} from './Stage/Runner';
+import {schema as taskSchema} from './Stage/Task';
 
 export const STAGE_STATES = ['pending', 'running', 'failed', 'succeeded'];
 
 function toJSON(doc, ret) {
   delete ret.__v;
   delete ret._id;
-  delete ret.position;
 
-  // Transform flat array of states into an associative array of runner name and state
-  ret.runners = _.object(_.map(doc.runners, runner => runner.name), ret.runners);
   ret.urn = doc.urn;
 
   return ret;
@@ -21,14 +18,14 @@ function toJSON(doc, ret) {
 export const schema = new mongoose.Schema({
   state: {type: String, 'enum': STAGE_STATES, required: true},
   position: {type: Number, required: true},
-  runners: [runnerSchema]
+  tasks: [taskSchema]
 }, {toJSON: {transform: toJSON}});
 
-schema.statics.pending = function (build, position, runners) {
+schema.statics.pending = function (build, position, {tasks}) {
   const stage = new Stage({
     state: 'pending',
     position: position,
-    runners: _.map(runners, runner => new Object({name: runner, state: 'pending'}))
+    tasks: _.map(tasks, ({name, runner, platform}) => new Object({name, runner, platform, state: 'pending'}))
   });
   stage.build = build;
   return stage;
@@ -40,36 +37,36 @@ schema.methods.run = function () {
   }
 
   this.state = 'running';
-  this.runners.forEach(runner => runner.queue());
+  this.tasks.forEach(task => task.queue());
 };
 
-schema.methods.updateRunnerState = function (runnerName, state) {
+schema.methods.updateTaskState = function (taskName, state) {
   if (this.state !== 'running') {
     throw new Error.StageNotRunningError(this);
   }
 
-  this.runner(runnerName).updateState(state);
+  this.task(taskName).updateState(state);
 
-  if (!this.hasRemainingRunners()) {
-    this.state = this.hasFailedRunners() ? 'failed' : 'succeeded';
+  if (!this.hasRemainingTasks()) {
+    this.state = this.hasFailedTasks() ? 'failed' : 'succeeded';
   }
 };
 
-schema.methods.runner = function(name) {
-  const found = _.find(this.runners, runner => runner.name === name);
+schema.methods.task = function(name) {
+  const found = _.find(this.tasks, task => task.name === name);
   if (typeof found === 'undefined') {
-    throw new Error.RunnerNotFoundError(this, name);
+    throw new Error.TaskNotFoundError(this, name);
   }
 
   return found;
 };
 
-schema.methods.hasRemainingRunners = function () {
-  return _.some(this.runners, runner => runner.isRemaining());
+schema.methods.hasRemainingTasks = function () {
+  return _.some(this.tasks, task => task.isRemaining());
 };
 
-schema.methods.hasFailedRunners = function () {
-  return _.some(this.runners, runner => runner.hasFailed());
+schema.methods.hasFailedTasks = function () {
+  return _.some(this.tasks, task => task.hasFailed());
 };
 
 schema.methods.isPending = function () {
@@ -99,8 +96,8 @@ schema.virtual('build').set(function (build) {
   this._build = build;
 });
 schema.virtual('build').get(function () {
-  return this.parent() || this._build;
-})
+  return (this.parent !== undefined && this.parent()) || this._build;
+});
 
 const Stage = mongoose.model('Stage', schema);
 export default Stage;

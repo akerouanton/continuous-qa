@@ -1,4 +1,5 @@
 const _ = require('underscore');
+const logger = require('tracer').colorConsole();
 
 import BuildRepository from '../service/repository/Build';
 import * as Error from '../Error';
@@ -22,9 +23,9 @@ import * as Error from '../Error';
  * @apiSuccess (200) {String}   state                Build state (<code>created, started, finished</code>)
  * @apiSuccess (200) {Object[]} stages
  * @apiSuccess (200) {String}   stages.state         Stage state (<code>queued, started, finished</code>)
- * @apiSuccess (200) {Object[]} stages.runners
- * @apiSuccess (200) {String}   stages.runners.name
- * @apiSuccess (200) {String}   stages.runners.state
+ * @apiSuccess (200) {Object[]} stages.tasks
+ * @apiSuccess (200) {String}   stages.tasks.name
+ * @apiSuccess (200) {String}   stages.tasks.state
  * @apiError (400) InvalidStages
  * @apiError (400) InvalidState
  * @apiError (404) BuildNotFound
@@ -32,7 +33,7 @@ import * as Error from '../Error';
 export default function RunBuild(req, res, next) {
   const stages = req.body.stages || [];
 
-  if (stages.constructor !== Array || stages.length === 0 || _.some(stages, stage => !Array.isArray(stage))) {
+  if (stages.constructor !== Array || stages.length === 0) {
     return res.status(400).json({error: 'InvalidStages'});
   }
 

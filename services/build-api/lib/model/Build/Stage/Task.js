@@ -11,12 +11,20 @@ export const RUNNER_TRANSITIONS = {
 };
 
 function toJSON(doc, ret) {
-  return {type: doc.name, state: doc.state, urn: `${doc.parent().urn}:${doc.name}`};
+  return {
+    name: doc.name,
+    runner: doc.runner,
+    platform: doc.platform,
+    state: doc.state,
+    urn: `${doc.parent().urn}:${doc.name}`
+  };
 }
 
 export const schema = new mongoose.Schema({
   name: {type: String, required: true},
-  state: {type: String, 'enum': RUNNER_STATES, required: true}
+  runner: {type: String, required: true},
+  state: {type: String, 'enum': RUNNER_STATES, required: true},
+  platform: String
 }, {toJSON: {transform: toJSON}});
 
 schema.methods.queue = function () {
@@ -25,7 +33,7 @@ schema.methods.queue = function () {
 
 schema.methods.updateState = function (state) {
   if (!_.contains(RUNNER_TRANSITIONS[this.state], state)) {
-    throw new Error.InvalidRunnerTransitionError(this, state);
+    throw new Error.InvalidTaskTransitionError(this, state);
   }
 
   this._changeState(state);
@@ -46,4 +54,8 @@ schema.methods.isRemaining = function () {
 
 schema.methods.hasFailed = function () {
   return this.state === 'failed';
+};
+
+schema.methods.stage = function () {
+  return this.parent();
 };

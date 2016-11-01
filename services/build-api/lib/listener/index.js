@@ -1,12 +1,12 @@
 import GenerateBuildId from './GenerateBuildId';
 import PublishBuildCreated from './PublishBuildCreated';
-import PublishRunnerQueued from './PublishRunnerQueued';
-import PublishRunnerFinished from './PublishRunnerFinished';
+import PublishTaskQueued from './PublishTaskQueued';
+import PublishTaskFinished from './PublishTaskFinished';
 
 const listeners = {
   GenerateBuildId,
   PublishBuildCreated,
-  PublishRunnerQueued,
-  PublishRunnerFinished
+  PublishTaskQueued,
+  PublishTaskFinished
 };
 export default listeners;

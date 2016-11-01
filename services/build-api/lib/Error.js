@@ -14,9 +14,9 @@ export class StageNotFoundError extends NotFoundError {
   }
 }
 
-export class RunnerNotFoundError extends NotFoundError {
-  constructor(stage, runnerName) {
-    super(`Stage "${stage.urn}" does not contain runner "${runnerName}".`);
+export class TaskNotFoundError extends NotFoundError {
+  constructor(stage, taskName) {
+    super(`Stage "${stage.urn}" does not contain task "${taskName}".`);
   }
 }
 
@@ -26,9 +26,9 @@ export class InvalidBuildTransitionError extends Error {
   }
 }
 
-export class InvalidRunnerTransitionError extends Error {
-  constructor(runner, state) {
-    super(`Updating runner "${runner.urn}" state from "${runner.state}" to "${state}" is not allowed.`);
+export class InvalidTaskTransitionError extends Error {
+  constructor(task, state) {
+    super(`Updating task "${task.urn}" state from "${task.state}" to "${state}" is not allowed.`);
   }
 }
 
