@@ -1,17 +1,29 @@
 import Pipeline from '../model/Pipeline';
-import {PipelineNotFound, NoMatchingPipeline} from '../Exception';
+import {PipelineNotFound, NoMatchingPipeline} from '../errors';
 
 export default class PipelineRepository {
-  static findPipeline(projectUrn, pattern) {
+  static upsert(pipeline) {
+    const {projectUrn, pattern, stages} = pipeline;
+
     return Pipeline
-      .findOne({ projectUrn: projectUrn, pattern: pattern })
+      .findOneAndUpdate({projectUrn, pattern}, {stages})
       .exec()
+      .then((result) => {
+        if (result === null) {
+          pipeline.save();
+          pipeline.isNew = true;
+          return pipeline;
+        }
+
+        return result;
+      })
     ;
   }
 
-  static getPipeline(projectUrn, pattern) {
-    return PipelineRepository
-      .findPipeline(projectUrn, pattern)
+  static get(projectUrn, pattern) {
+    return Pipeline
+      .findOne({projectUrn, pattern})
+      .exec()
       .then((res) => {
         if (res === null) {
           throw new PipelineNotFound(projectUrn, pattern);
@@ -19,6 +31,10 @@ export default class PipelineRepository {
         return res;
       })
     ;
+  }
+
+  static find(projectUrn) {
+    return Pipeline.find({projectUrn}).exec();
   }
 
   static getMatchingPipeline(projectUrn, branch) {

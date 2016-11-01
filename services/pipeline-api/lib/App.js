@@ -2,8 +2,10 @@ const express = require('express');
 const logger = require('tracer').colorConsole();
 const mongoose = require('mongoose');
 const morgan = require('morgan');
+const bodyParser = require('body-parser');
 
-import router from './Router';
+import router from './router';
+import errorHandler from './errorHandler';
 
 export default class App {
   constructor(config) {
@@ -18,11 +20,10 @@ export default class App {
     mongoose.connect(`${this._config.mongo.uri}/${this._config.mongo.db}`);
 
     this._express.use(morgan('combined'));
-    this._express.use(router(this._repository));
-    this._express.use((err, req, res, next) => {
-      logger.error(err);
-      res.status(500).end();
-    });
+    this._express.use(bodyParser.json());
+    this._express.use(bodyParser.urlencoded({extended: true}));
+    this._express.use(router());
+    this._express.use(errorHandler());
   }
 
   run() {
