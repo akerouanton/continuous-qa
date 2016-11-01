@@ -14,24 +14,17 @@ import {displayPluginList as halResponder} from '../responder/hal';
  * @apiSuccess (200) {String[]} plugins.dependencies Dependency name as key, version as value
  * @apiSuccess (200) {Object[]} plugins.endpoints
  * @apiSuccess (200) {Object[]} plugins.hooks
+ * @apiSuccess (200) {String}   plugins.platform     Only for "runner" plugins
  */
 export function handleListPlugins(req, res, next) {
   PluginRepository
     .list()
     .then((plugins) => {
       res.format({
-        'application/json': () => {
-          res.status(200);
-          jsonResponder(res, plugins)
-        },
-        'application/hal+json': () => {
-          res.status(200);
-          halResponder(res, plugins)
-        },
-        'default': () => {
-          res.sendStatus(406);
-        }
-      })
+        'application/json': () => jsonResponder(res.status(200), plugins),
+        'application/hal+json': () => halResponder(res.status(200), plugins),
+        'default': () => res.sendStatus(406)
+      });
     })
     .catch(err => next(err))
   ;

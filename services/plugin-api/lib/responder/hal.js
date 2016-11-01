@@ -1,5 +1,15 @@
+const _ = require('underscore');
+
 import halson from 'halson';
 import {generateUrl} from '../router';
+
+function transformEndpoints(endpoints) {
+  const ret = {};
+
+  _.mapObject(endpoints, (val) => ret[val.name] = val.url);
+
+  return ret;
+}
 
 function getPluginRepresentation(plugin) {
   const resource = halson({
@@ -7,8 +17,9 @@ function getPluginRepresentation(plugin) {
     type: plugin.type,
     state: plugin.enabled ? 'enabled' : 'disabled',
     dependencies: [],
-    endpoints: plugin.endpoints,
-    hooks: plugin.hooks
+    endpoints: transformEndpoints(plugin.endpoints),
+    hooks: plugin.hooks,
+    platform: plugin.platform
   });
 
   return resource

@@ -14,11 +14,13 @@ import PluginRepository from '../service/PluginRepository';
  * @apiParam {String[]} dependencies Dependency name as key, version as value
  * @apiParam {Object[]} endpoints
  * @apiParam {Object[]} hooks
+ * @apiParam {String}   platform     Only for "runner" plugins. Must be a "runner-platform" plugin.
  * @apiSuccess (200) {String}   name
  * @apiSuccess (200) {String}   type
  * @apiSuccess (200) {String[]} dependencies Dependency name as key, version as value
  * @apiSuccess (200) {Object[]} endpoints
  * @apiSuccess (200) {Object[]} hooks
+ * @apiSuccess (200) {String}   platform     Only for "runner" plugins
  * @apiError (400) MissingType
  * @apiError (400) InvalidType
  * @apiError (400) MissingDependencies
@@ -26,29 +28,19 @@ import PluginRepository from '../service/PluginRepository';
  */
 export function handleRegisterPlugin(req, res, next) {
   const {name} = req.params;
-  const {type, endpoints, hooks} = req.body;
-  const plugin = new Plugin({name, type, endpoints, hooks, enabled: true});
+  const {type, endpoints, hooks, platform = null} = req.body;
+  const plugin = new Plugin({name, type, endpoints, hooks, platform, enabled: true});
 
   PluginRepository
     .upsert(plugin)
     .then(plugin => {
       const statusCode = plugin.isNew ? 201 : 200;
-      res
-        .format({
-          'application/json': () => {
-            res.status(statusCode);
-            jsonResponder(res, plugin);
-          },
-          'application/hal+json': () => {
-            res.status(statusCode);
-            halResponder(res, plugin);
-          },
-          'default': () => {
-            res.sendStatus(406);
-          }
-        })
-        .end()
-      ;
+
+      res.format({
+        'application/json': () => jsonResponder(res.status(statusCode), plugin),
+        'application/hal+json': () => halResponder(res.status(statusCode), plugin),
+        'default': () => res.sendStatus(406)
+      });
     })
     .catch(err => next(err))
   ;

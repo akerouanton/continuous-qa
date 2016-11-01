@@ -70,26 +70,31 @@ ARTIFACT_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/artifa
 BUILD_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/build-api/.env)
 LOG_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/log-api/.env)
 PIPELINE_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/pipeline-api/.env)
+PLUGIN_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/plugin-api/.env)
 drop-databases:
 	$(FIG) exec -T mongodb mongo $(ARTIFACT_API_DBNAME) --eval "db.dropDatabase()"
 	$(FIG) exec -T mongodb mongo $(BUILD_API_DBNAME) --eval "db.dropDatabase()"
 	$(FIG) exec -T mongodb mongo $(LOG_API_DBNAME) --eval "db.dropDatabase()"
 	$(FIG) exec -T mongodb mongo $(PIPELINE_API_DBNAME) --eval "db.dropDatabase()"
+	$(FIG) exec -T mongodb mongo $(PLUGIN_API_DBNAME) --eval "db.dropDatabase()"
 
 load-fixtures: drop-databases
 	$(FIG) exec mongodb mongo $(BUILD_API_DBNAME) /fixtures/build-api/builds.js
 	$(FIG) exec mongodb mongo $(LOG_API_DBNAME) /fixtures/log-api/logs.js
 	$(FIG) exec mongodb mongo $(PIPELINE_API_DBNAME) /fixtures/pipeline-api/pipelines.js
+	$(FIG) exec mongodb mongo $(PLUGIN_API_DBNAME) /fixtures/plugin-api/plugins.js
 
 mongo-dump:
 	$(FIG) exec mongodb mongodump --db=$(BUILD_API_DBNAME) --archive=/dumps/$(BUILD_API_DBNAME)
 	$(FIG) exec mongodb mongodump --db=$(LOG_API_DBNAME) --archive=/dumps/$(LOG_API_DBNAME)
 	$(FIG) exec mongodb mongodump --db=$(PIPELINE_API_DBNAME) --archive=/dumps/$(PIPELINE_API_DBNAME)
+	$(FIG) exec mongodb mongodump --db=$(PLUGIN_API_DBNAME) --archive=/dumps/$(PLUGIN_API_DBNAME)
 
 mongo-restore: drop-databases
 	$(FIG) exec -T mongodb mongorestore --db=$(BUILD_API_DBNAME) --archive=/dumps/$(BUILD_API_DBNAME)
 	$(FIG) exec -T mongodb mongorestore --db=$(LOG_API_DBNAME) --archive=/dumps/$(LOG_API_DBNAME)
 	$(FIG) exec -T mongodb mongorestore --db=$(PIPELINE_API_DBNAME) --archive=/dumps/$(PIPELINE_API_DBNAME)
+	$(FIG) exec -T mongodb mongorestore --db=$(PLUGIN_API_DBNAME) --archive=/dumps/$(PLUGIN_API_DBNAME)
 
 tests:
 	cd services/build-api && NODE_ENV=test npm run tests
