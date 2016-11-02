@@ -3,6 +3,8 @@ version: '2'
 services:
   logstash:
     build: logstash
+    cpu_quota: 100000
+    cpu_shares: 512
 
   mongodb:
     build: mongodb

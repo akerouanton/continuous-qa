@@ -1,0 +1,46 @@
+version: '2'
+
+services:
+  docs:
+    environment:
+      LOGSPOUT: ignore
+
+  logstash:
+    depends_on: [mongodb, elasticsearch]
+    environment:
+      LOGSPOUT: ignore
+
+  mongodb:
+    environment:
+      LOGSPOUT: ignore
+
+  rabbitmq:
+    environment:
+      LOGSPOUT: ignore
+
+  elasticsearch:
+    build: elasticsearch
+    mem_limit: 1g
+    memswap_limit: 3g
+    ports:
+      - "9200:9200"
+    environment:
+      LOGSPOUT: ignore
+
+  kibana:
+    build: kibana
+    depends_on: [elasticsearch]
+    ports:
+      - "8080:5601"
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      LOGSPOUT: ignore
+
+  logspout:
+    build: logspout
+    depends_on: [logstash]
+    environment:
+      ROUTE_URIS: logstash://logstash:5000
+      LOGSPOUT: ignore
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"

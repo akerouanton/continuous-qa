@@ -15,6 +15,7 @@ services:
     extends:
       file: ../docker/common.yml
       service: logstash
+    depends_on: [mongodb]
     volumes:
       - "../docker/logstash/logstash.conf:/etc/logstash/conf.d/logstash.conf"
 
@@ -28,6 +29,7 @@ services:
       - "../services/build-api/fixtures/:/fixtures/build-api/"
       - "../services/log-api/fixtures/:/fixtures/log-api/"
       - "../services/pipeline-api/fixtures/:/fixtures/pipeline-api/"
+      - "../services/plugin-api/fixtures/:/fixtures/plugin-api/"
       - "..//dumps/:/dumps/"
 
   nginx:
