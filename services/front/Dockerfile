@@ -1,5 +1,9 @@
-FROM node:5-slim
+FROM node:6.8-slim
 
-COPY ./web/ /var/www/app/
+WORKDIR /usr/src/app
+COPY ./package.json /usr/src/app/
+RUN npm install
 
-CMD ["/bin/true"]
+COPY ./ /usr/src/app/
+
+CMD ["npm", "run", "build"]

@@ -17,8 +17,6 @@ services:
 
   front:
     build: front
-    volumes:
-      - "./front/web/:/var/www/app/"
 
   gh-hooks:
     build: gh-hooks
