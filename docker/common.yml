@@ -15,4 +15,10 @@ services:
       - "80:80"
 
   rabbitmq:
-      build: rabbitmq
+    build: rabbitmq
+
+  vault:
+    build: vault
+    command: "server"
+    cap_add:
+      - IPC_LOCK

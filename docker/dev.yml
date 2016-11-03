@@ -50,3 +50,11 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  vault:
+    extends:
+      file: ../docker/common.yml
+      service: vault
+    command: "server -dev"
+    ports:
+      - "8200:8200"
