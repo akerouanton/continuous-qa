@@ -1,51 +1,61 @@
+const logger = require('tracer').colorConsole();
+
 import Purest from 'purest';
+const github = new Purest({provider: 'github', promise: true});
+import {GithubApiError} from '../errors';
 
-export class GithubClient {
-  constructor() {
-    this._github = new Purest({provider: 'github', promise: true});
-  }
+export function getUserProfile(user) {
+  const {token} = user;
 
-  getUserProfile(oauthToken) {
-    return this
-      .query()
-      .get('user')
-      .auth(oauthToken)
-      .request()
-      .then(([response, profile]) => {
-        return {githubId: profile.id, name: profile.name};
-      })
-    ;
-  }
+  return get('user', token)
+    .request()
+    .then(([response, profile]) => {
+      if (response.statusCode !== 200) {
+        throw new GithubApiError('user', response.body.message);
+      }
 
-  getUserRepositories(oauthToken) {
-    return this
-      .query()
-      .get('user/repos')
-      .where({visibility: 'public'})
-      .auth(oauthToken)
-      .request()
-      .then(([response, repositories]) => {
-        return repositories
-          .filter((repository) => { return repository.fork === false; })
-          .map((repository) => {
-            return {
-              githubId: repository.id,
-              name: repository.full_name,
-              publicUrl: repository.html_url,
-              cloneUrl: repository.clone_url
-            };
-          })
-      })
-    ;
-  }
+      user.githubId = profile.id;
+      user.name = profile.login;
+      user.fullname = profile.name;
 
-  query() {
-    return this
-      ._github
-      .query()
-      .options({"headers": {"User-Agent": "Local ContinuousQA"}})
-    ;
-  }
+      return user;
+    })
+  ;
 }
 
-export default new GithubClient();
+export function getUserRepositories(user) {
+  const {token} = user;
+  user.repositories = null;
+
+  return get('user/repos', token)
+    .where({visibility: 'public'})
+    .request()
+    .then(([response, repositories]) => {
+      if (response.statusCode !== 200) {
+        throw new GithubApiError('user/repos', response.body.message);
+      }
+
+      user.repositories = filterForkRepositories(repositories);
+
+      return user;
+    })
+  ;
+}
+
+function get(path, token) {
+  return github
+    .query()
+    .options({"headers": {"User-Agent": "Local ContinuousQA"}})
+    .get(path)
+    .auth(token)
+  ;
+}
+
+function filterForkRepositories(repositories) {
+  return repositories
+    .filter(repository => repository.fork === false)
+    .map(({id: githubId, full_name: name, html_url: publicUrl, clone_url: cloneUrl}) => {
+      return {githubId, name, publicUrl, cloneUrl};
+    })
+  ;
+}

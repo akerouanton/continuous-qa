@@ -1,0 +1,14 @@
+mongo_uri: MONGO_URI
+http_port: HTTP_PORT
+secret: SECRET
+
+oauth:
+  server:
+    host: HOST
+  github:
+    key: GITHUB_OAUTH_TOKEN
+    secret: GITHUB_OAUTH_SECRET
+
+vault:
+  endpoint: VAULT_ENDPOINT
+  token: VAULT_TOKEN

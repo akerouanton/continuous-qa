@@ -1,0 +1,14 @@
+packetbeat.protocols.http:
+  ports: [80, 8000]
+
+packetbeat.protocols.mongodb:
+  ports: [27017]
+
+packetbeat.protocols.amqp:
+  ports: [5672]
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+
+output.console:
+  pretty: true

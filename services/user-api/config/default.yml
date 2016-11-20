@@ -1,0 +1,19 @@
+mongo_uri: mongodb://localhost/user
+http_port: 8000
+secret: ThisTokenIsNotSoSecretChangIt!
+
+oauth:
+  server:
+    protocol: http
+    host: localhost
+    callback: /#/dashboard
+    transport: session
+  github:
+    key:
+    secret:
+    scope: [repo, admin:repo_hook]
+
+vault:
+  apiVersion: v1
+  endpoint: http://localhost:8200
+  backendPrefix: secret

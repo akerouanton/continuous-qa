@@ -1,25 +1,15 @@
 import User from '../model/User';
 
-export default class {
-  static createOrUpdate(profile) {
-    return User
-      .findOneAndUpdate({githubId: profile.githubId}, profile)
-      .exec()
-      .then((user) => {
-        if (user === null) {
-          user = new User(profile);
-          return user.save();
-        }
+export function upsert(profile) {
+  const {githubId, name} = profile;
 
-        return user;
-      })
-    ;
-  }
+  return User
+    .findOneAndUpdate({githubId}, {githubId, name})
+    .exec()
+    .then(user => user === null ? new User(profile).save() : user)
+  ;
+}
 
-  static getByGithubId(githubId) {
-    return User
-      .findOne({githubId: githubId})
-      .exec()
-    ;
-  }
+export function getByGithubId(githubId) {
+  return User.findOne({githubId}).exec();
 }

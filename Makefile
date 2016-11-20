@@ -1,5 +1,5 @@
 .PHONY: build build-analyzers up stop halt ps logs introspect rm run reload restart drop-databases load-fixtures
-.PHONY: mongo-dump mongo-restore tests cleanup-runner cleanup install
+.PHONY: mongo-dump mongo-restore tests install
 
 COMPOSE_PROJECT_NAME?=continuousqa
 export $COMPOSE_PROJECT_NAME
@@ -100,16 +100,6 @@ tests:
 	cd services/build-api && NODE_ENV=test npm run tests
 	cd services/log-api && NODE_ENV=test npm run tests
 	cd services/pipeline-api && NODE_ENV=test npm run tests
-	cd services/runner-api && NODE_ENV=test npm run tests
-
-ARTIFACTS_TMP_DIR=$(shell awk -F= '/TMP_DIR/ {print $$2}' services/runner-api/.env)
-cleanup-runner:
-	-docker ps -a -f "label=com.continuousqa.runner" | tail -n+2 | awk '{print $$1}' | xargs docker rm -vf 2>/dev/null
-ifneq (,$(ARTIFACTS_TMP_DIR))
-	-rm -rf $(ARTIFACTS_TMP_DIR)/*
-endif
-
-cleanup: rm cleanup-runner
 
 install: build
 	for file in services/**/.env.dist; do (test -f $${file%.dist} || cp $$file $${file%.dist}); done
