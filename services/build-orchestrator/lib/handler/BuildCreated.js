@@ -1,9 +1,10 @@
 const _ = require('underscore');
 const logger = require('tracer').colorConsole();
 
-import {fetchBuild, runBuild} from '../service/BuildGateway';
+import {fetchBuild, runBuild, changeBuildState} from '../service/BuildGateway';
 import {fetchMatchingPipeline} from '../service/PipelineGateway';
 import {enrichPipeline} from '../service/PluginGateway';
+import {PipelineNotFoundError} from '../errors';
 
 export function onBuildCreated({build: {urn: buildUrn = null}}) {
   if (buildUrn === null) {
@@ -11,9 +12,15 @@ export function onBuildCreated({build: {urn: buildUrn = null}}) {
   }
 
   return fetchBuild(buildUrn)
-    .then((build) => fetchMatchingPipeline(build.projectUrn, build.branch))
-    .then((pipeline) => { logger.debug(pipeline); return pipeline; })
-    .then((pipeline) => enrichPipeline(pipeline))
+    .then(fetchMatchingPipeline)
+    .then(enrichPipeline)
     .then((pipeline) => runBuild(buildUrn, pipeline.stages))
+    .catch((err) => {
+      if (err instanceof PipelineNotFoundError) {
+        return changeBuildState(buildUrn, 'failed');
+      }
+
+      logger.error(err);
+    })
   ;
 }

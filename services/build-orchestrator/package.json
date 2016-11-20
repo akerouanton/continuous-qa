@@ -12,6 +12,7 @@
   "dependencies": {
     "amqp": "^0.2.6",
     "config": "^1.21.0",
+    "es6-error": "^4.0.0",
     "halson": "^2.3.1",
     "js-yaml": "^3.6.1",
     "promise": "^7.1.1",

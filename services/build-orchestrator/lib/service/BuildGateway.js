@@ -2,6 +2,7 @@ const Promise = require('promise');
 const request = require('request');
 const get = Promise.denodeify(request.get);
 const post = Promise.denodeify(request.post);
+const patch = Promise.denodeify(request.patch);
 const config = require('config');
 const logger = require('tracer').colorConsole();
 
@@ -33,6 +34,15 @@ export function runBuild(buildUrn, stages) {
       logger.debug(`Build "${buildUrn}" started.`);
       return JSON.parse(response.body);
     });
+}
+
+export function changeBuildState(buildUrn, state) {
+  const url = `${config.endpoints.build}/${encodeURIComponent(buildUrn)}`;
+  logger.debug(`Changing build state to "${state}" for build "${buildUrn}".`);
+
+  return patch({url, form: {state}})
+    .then()
+  ;
 }
 
 export function updateTaskState({buildUrn, stageId, taskName, state}) {
