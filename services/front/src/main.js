@@ -1,21 +1,15 @@
 import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Vuex from 'vuex'
 import App from './App'
-import Signin from './components/Signin'
-
-Vue.use(Vuex)
-Vue.use(VueRouter)
-
-const routes = [
-  { path: '/signin', component: Signin }
-]
-
-const router = new VueRouter({routes})
+import store from './lib/store'
+import router from './lib/router'
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
+import resources from './lib/resources'
 
 /* eslint-disable no-new */
 new Vue({
-  router: router,
+  router,
+  store,
   el: '#app',
   template: '<App/>',
   components: { App }

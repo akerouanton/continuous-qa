@@ -30,6 +30,9 @@ services:
     extends:
       file: ../services/common.yml
       service: front
+    command: npm run dev
+    volumes:
+      - "../services/front/:/usr/src/app/"
 
   gh-hooks:
     extends:

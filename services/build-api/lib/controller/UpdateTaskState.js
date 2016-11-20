@@ -19,7 +19,6 @@ import * as Error from '../Error';
  *     state = failed
  * @apiSuccess (200) {String}   urn
  * @apiSuccess (200) {String}   projectUrn           Project URN
- * @apiSuccess (200) {String}   branch
  * @apiSuccess (200) {Number}   buildId
  * @apiSuccess (200) {String}   repoUrl              Repository URL
  * @apiSuccess (200) {String}   ref                  Commit hash

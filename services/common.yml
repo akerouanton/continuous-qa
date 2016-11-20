@@ -17,6 +17,8 @@ services:
 
   front:
     build: front
+    cpu_quota: 50000
+    cpu_shares: 512
 
   gh-hooks:
     build: gh-hooks

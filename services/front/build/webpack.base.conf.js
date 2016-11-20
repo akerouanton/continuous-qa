@@ -2,6 +2,7 @@ var path = require('path')
 var config = require('../config')
 var utils = require('./utils')
 var projectRoot = path.resolve(__dirname, '../')
+var webpack = require('webpack')
 
 var env = process.env.NODE_ENV
 // check env & config/index.js to decide weither to enable CSS Sourcemaps for the
@@ -77,6 +78,18 @@ module.exports = {
           limit: 10000,
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
         }
+      },
+      {
+        test: /\.css$/,
+        loaders: [
+          'style-loader',
+          'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]__[hash:base64:5]',
+          'postcss-loader',
+        ],
+      },
+      {
+        test: /\.less$/,
+        loader: "style-loader!css-loader!less-loader"
       }
     ]
   },
@@ -90,5 +103,14 @@ module.exports = {
         browsers: ['last 2 versions']
       })
     ]
-  }
+  },
+  underscoreTemplateLoader: {
+    engine: 'underscore'
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery"
+    })
+  ]
 }

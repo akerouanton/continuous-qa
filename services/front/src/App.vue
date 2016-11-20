@@ -1,33 +1,60 @@
 <template>
   <div id="app">
-    <nav>
-      <ul>
-        <li><router-link to="/signin">Sign in</router-link></li>
-      </ul>
-    </nav>
+    <header>
+      <nav>
+        <div>
+          <ul>
+            <li v-if="!isConnected"><a href="/connect/github">Connect with Github</a></li>
+            <li v-if="isConnected"><router-link to="/">Disconnect</router-link></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
 
-    <router-view></router-view>
+    <div id="body">
+      <main>
+        <router-view></router-view>
+      </main>
+    </div>
   </div>
 </template>
 
 <script>
-import Hello from './components/Hello'
+import {mapGetters} from 'vuex'
+import {User} from './lib/resources'
 
 export default {
   name: 'app',
-  components: {
-    Hello
+  computed: {
+    ...mapGetters({
+      'isConnected': 'user.isConnected'
+    })
+  },
+  async created () {
+    const {status, body: profile} = await User.profile()
+    if (status !== 200) {
+      return
+    }
+
+    const {name, repositories} = profile
+    this.$store.commit('user.profile', {name, repositories})
   }
 }
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<style lang="less">
+@import '../node_modules/bootstrap/less/bootstrap.less';
+
+nav {
+  .navbar;
+  .navbar-default;
+
+  div {
+    .container;
+  }
+  ul {
+    .nav;
+    .navbar-nav;
+  }
 }
 </style>
