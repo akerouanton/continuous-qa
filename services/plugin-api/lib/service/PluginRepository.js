@@ -10,9 +10,10 @@ export default class PluginRepository {
       .exec()
       .then((result) => {
         if (result === null) {
-          plugin.save();
-          plugin.isNew = true;
-          return plugin;
+          return plugin.save().then(() => {
+            plugin.isNew = true;
+            return plugin;
+          });
         }
 
         return result;

@@ -10,9 +10,10 @@ export default class PipelineRepository {
       .exec()
       .then((result) => {
         if (result === null) {
-          pipeline.save();
-          pipeline.isNew = true;
-          return pipeline;
+          return pipeline.save().then(() => {
+            pipeline.isNew = true;
+            return pipeline;
+          });
         }
 
         return result;
