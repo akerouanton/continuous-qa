@@ -103,6 +103,14 @@ schema.methods.getRunningStage = function () {
   return _.find(this.stages, stage => stage.isRunning());
 };
 
+schema.methods.fail = function () {
+  if (this.state !== 'created') {
+    throw new Error.InvalidBuildTransitionError(this, 'failed');
+  }
+
+  this.state = 'failed';
+};
+
 schema.pre('validate', function (next) {
   emitter.emit('build.pre_validate', this, next);
 });

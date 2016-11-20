@@ -6,6 +6,7 @@ import GetBuild from './controller/GetBuild';
 import GetBuildHistory from './controller/GetBuildHistory';
 import UpdateTaskState from './controller/UpdateTaskState';
 import RunBuild from './controller/RunBuild';
+import * as ChangeBuildState from './controller/ChangeBuildState';
 import HttpParamHandler from './service/http/ParamHandler';
 
 const routes = {
@@ -13,7 +14,8 @@ const routes = {
   'GetBuild': {method: 'get', pattern: '/build/:buildUrn', handler: GetBuild, params: ['buildUrn']},
   'GetBuildHistory': {method: 'get', pattern: '/builds/:projectUrn', handler: GetBuildHistory, params: ['projectUrn']},
   'UpdateTaskState': {method: 'post', pattern: '/build/:buildUrn/:stage/:task', handler: UpdateTaskState, params: ['buildUrn', 'stage', 'task']},
-  'RunBuild': {method: 'post', pattern: '/build/:buildUrn/run', handler: RunBuild, params: ['buildUrn']}
+  'RunBuild': {method: 'post', pattern: '/build/:buildUrn/run', handler: RunBuild, params: ['buildUrn']},
+  'ChangeBuildState': {method: 'patch', pattern: '/build/:buildUrn', handler: [ChangeBuildState.validate, ChangeBuildState.handle], params: ['buildUrn']}
 };
 
 export default function () {
