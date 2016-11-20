@@ -1,0 +1,18 @@
+httpPort: 8000
+secret: ThisTokenIsNotSoSecretChangIt!
+buildEndpoint: http://continuousqa_build-api_1:8000/builds
+repositoriesEndpoint: http://continuousqa_repository-api_1:8000/repositories
+host: localhost
+
+amqp:
+  host: continuousqa_rabbitmq_1
+  port: 5672
+  login: guest
+  password: guest
+  connectionTimeout: 1000
+  vhost: /
+
+vault:
+  apiVersion: v1
+  endpoint: http://vault:8200
+  backendPrefix: secret

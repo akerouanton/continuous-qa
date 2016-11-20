@@ -1,0 +1,16 @@
+httpPort: HTTP_PORT
+secret: SECRET
+buildEndpoint: BUILD_ENDPOINT
+repositoriesEndpoint: REPOSITORIES_ENDPOINT
+host: HOST
+
+amqp:
+  host: AMQP_HOST
+  port: AMQP_PORT
+  login: AMQP_USER
+  password: AMQP_PASS
+  vhost: AMQP_VHOST
+
+vault:
+  endpoint: VAULT_ENDPOINT
+  token: VAULT_TOKEN
