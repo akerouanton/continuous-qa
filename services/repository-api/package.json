@@ -1,0 +1,40 @@
+{
+  "name": "continuous-qa-repository-api",
+  "version": "0.2.0",
+  "description": "",
+  "main": "bin/app.js",
+  "scripts": {
+    "app": "./node_modules/.bin/babel-node bin/app.js",
+    "dev-app": "NODE_ENV=dev ./node_modules/.bin/nodemon --exec npm run app"
+  },
+  "author": "Albin Kerouanton <albin.kerouanton@knplabs.com>",
+  "license": "MIT",
+  "dependencies": {
+    "amqp": "^0.2.6",
+    "babel-cli": "^6.18.0",
+    "babel-preset-es2015-node": "^6.1.1",
+    "bluebird": "^3.4.6",
+    "body-parser": "^1.15.2",
+    "config": "^1.24.0",
+    "es6-error": "^4.0.0",
+    "express": "^4.14.0",
+    "express-jwt": "^5.1.0",
+    "github": "^6.0.4",
+    "halson": "^2.3.1",
+    "js-yaml": "^3.6.1",
+    "mongoose": "^4.6.6",
+    "morgan": "^1.7.0",
+    "node-forge": "^0.6.45",
+    "node-vault": "^0.5.5",
+    "tracer": "^0.8.7",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015-node"
+    ]
+  }
+}

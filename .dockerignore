@@ -6,11 +6,11 @@ dumps/
 node_modules/
 plugins/common.yml
 plugins/dev.yml
+plugins/runner/
 plugins/runner-platform/docker/node_modules/
 plugins/runner-platform/docker/Dockerfile
 plugins/runner-platform/docker-events/
 plugins/runner-platform/docker-log-streamer/
-plugins/runner/
 services/artifact-api/Dockerfile
 services/artifact-api/node_modules/
 services/build-api/Dockerfile
@@ -25,5 +25,7 @@ services/pipeline-api/node_modules/
 services/pipeline-api/Dockerfile
 services/plugin-api/node_modules/
 services/plugin-api/Dockerfile
+services/repository-api/node_modules/
+services/repository-api/Dockerfile
 services/user-api/node_modules/
 services/user-api/Dockerfile

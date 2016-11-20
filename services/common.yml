@@ -34,6 +34,10 @@ services:
     build: plugin-api
     env_file: plugin-api/.env
 
+  repository-api:
+    build: repository-api
+    env_file: repository-api/.env
+
   user-api:
     build: user-api
     expose: ['3000']

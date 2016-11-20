@@ -1,0 +1,7 @@
+mongo_uri: mongodb://mongodb/repository
+
+vault:
+  endpoint: http://vault:8200
+
+amqp:
+  host: continuousqa_rabbitmq_1

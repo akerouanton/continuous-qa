@@ -1,0 +1,15 @@
+mongo_uri: MONGO_URI
+http_port: HTTP_PORT
+secret: SECRET
+
+vault:
+  token: VAULT_TOKEN
+  endpoint: VAULT_ENDPOINT
+
+amqp:
+  host: AMQP_HOST
+  port: AMQP_PORT
+  login: AMQP_USER
+  password: AMQP_PASS
+  vhost: AMQP_VHOST
+

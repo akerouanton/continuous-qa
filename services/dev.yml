@@ -63,6 +63,14 @@ services:
     volumes:
       - "../services/plugin-api/:/usr/src/app/"
 
+  repository-api:
+    extends:
+      file: ../services/common.yml
+      service: repository-api
+    command: dev-app
+    volumes:
+      - "../services/repository-api/:/usr/src/app/"
+
   user-api:
     extends:
       file: ../services/common.yml

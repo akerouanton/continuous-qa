@@ -1,0 +1,16 @@
+mongo_uri: mongodb://localhost/repository
+http_port: 8000
+secret: ThisTokenIsNotSoSecretChangIt!
+
+vault:
+  apiVersion: v1
+  endpoint: http://localhost:8200
+  backendPrefix: secret
+
+amqp:
+  host: localhost
+  port: 5672
+  login: guest
+  password: guest
+  connectionTimeout: 1000
+  vhost: /
