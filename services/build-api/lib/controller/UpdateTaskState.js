@@ -13,7 +13,7 @@ import * as Error from '../Error';
  * @apiParam {String} task  Task name
  * @apiParam {String} state   New state (<code>form-data</code> parameter, either: <code>running</code>, <code>succeeded</code>, <code>failed</code>)
  * @apiParamExample Parameters Example
- *     buildUrn = urn:gh:knplabs/gaufrette:1
+ *     buildUrn = urn:cqa:gh:knplabs/gaufrette:1
  *     stage = 1
  *     task = php-cs-fixer
  *     state = failed

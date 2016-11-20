@@ -9,7 +9,7 @@ import {PipelineNotFound, HttpClientError} from '../errors';
  * @apiParam {String} projectUrn
  * @apiParam {String} pattern
  * @apiParamExample Parameters Example
- *   projectUrn = urn:gh:knplabs/gaufrette
+ *   projectUrn = urn:cqa:gh:knplabs/gaufrette
  *   pattern    = feature/*
  * @apiSuccess (200) {String}   projectUrn
  * @apiSuccess (200) {String}   pattern

@@ -12,7 +12,7 @@ import Build from '../model/Build';
  * @apiParam {String} branch
  * @apiParam {String} ref        Commit hash
  * @apiParamExample Parameters Example
- *     projectUrn = urn:gh:knplabs/gaufrette
+ *     projectUrn = urn:cqa:gh:knplabs/gaufrette
  *     repoUrl    = https://github.com/knplabs/gaufrette
  *     branch     = master
  *     ref        = 0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c

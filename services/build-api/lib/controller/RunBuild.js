@@ -12,7 +12,7 @@ import * as Error from '../Error';
  * @apiParam {String}   buildUrn         URN of the build
  * @apiParam {String[]} stages[][]
  * @apiParamExample Parameters Example
- *     buildUrn = urn:gh:knplabs/gaufrette:1
+ *     buildUrn = urn:cqa:gh:knplabs/gaufrette:1
  *     stages[0][0] = php-cs-fixer
  *     stages[0][1] = phpqa
  * @apiSuccess (200) {String}   projectUrn           Project URN

@@ -38,7 +38,7 @@ export default class App {
     this._express.use(morgan('combined'));
     this._express.get('/logs/:bucketUrn', controller.handleRequest.bind(controller));
     this._express.param('bucketUrn', (req, res, next, urn) => {
-      if (/^urn:gh:[a-zA-Z0-9\-_]+\/[a-zA-Z0-9\-_]+:\d+:\d+:[a-zA-Z_\-]+$/.test(urn)) {
+      if (/^urn:cqa:gh:[a-zA-Z0-9\-_]+\/[a-zA-Z0-9\-_]+:\d+:\d+:[a-zA-Z_\-]+$/.test(urn)) {
         next();
         return;
       }

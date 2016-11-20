@@ -12,7 +12,7 @@ import {HttpClientError} from '../errors';
  * @apiParam {String} projectUrn
  * @apiParam {String} pattern
  * @apiParamExample Parameters Example
- *   projectUrn = urn:gh:knplabs/gaufrette
+ *   projectUrn = urn:cqa:gh:knplabs/gaufrette
  *   pattern = feature/*
  *   stages[0][tasks][0][name] = php-cs-fixer
  *   stages[0][tasks][0][runner] = php-cs-fixer

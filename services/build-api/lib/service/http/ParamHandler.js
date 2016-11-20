@@ -2,7 +2,7 @@ const logger = require('tracer').colorConsole();
 
 export default class HttpParamHandler {
   static projectUrn(req, res, next, urn) {
-    if (/^urn:gh:[a-zA-Z0-9\-_]+\/[a-zA-Z0-9\-_]+$/.test(urn)) {
+    if (/^urn:cqa:gh:[a-zA-Z0-9\-_]+\/[a-zA-Z0-9\-_]+$/.test(urn)) {
       return next();
     }
 
@@ -10,7 +10,7 @@ export default class HttpParamHandler {
   }
 
   static buildUrn(req, res, next, urn) {
-    const matches = /^(urn:gh:[a-zA-Z0-9\-_]+\/[a-zA-Z0-9\-_]+):(\d+)$/.exec(urn);
+    const matches = /^(urn:cqa:gh:[a-zA-Z0-9\-_]+\/[a-zA-Z0-9\-_]+):(\d+)$/.exec(urn);
 
     if (matches !== null) {
       req.params.projectUrn = matches[1];

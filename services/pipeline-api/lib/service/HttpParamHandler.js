@@ -1,7 +1,7 @@
 import {HttpClientError} from '../errors';
 
 export function validateProjectUrn(req, res, next, urn) {
-  if (/^urn:gh:[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$/.test(urn)) {
+  if (/^urn:cqa:gh:[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$/.test(urn)) {
     return next();
   }
 

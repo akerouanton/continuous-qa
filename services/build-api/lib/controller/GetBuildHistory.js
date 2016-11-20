@@ -7,7 +7,7 @@ import BuildRepository from '../service/repository/Build';
  * @apiVersion 0.1.0
  * @apiParam {String} projectUrn URN of the project
  * @apiParamExample Parameter Example
- *     projectUrn = urn:gh:knplabs/gaufrette
+ *     projectUrn = urn:cqa:gh:knplabs/gaufrette
  * @apiSuccess (200) {String}   projectUrn           Project URN
  * @apiSuccess (200) {String}   branch
  * @apiSuccess (200) {Number}   buildId

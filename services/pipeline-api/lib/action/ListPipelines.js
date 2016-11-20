@@ -7,7 +7,7 @@ import PipelineRepository from '../service/PipelineRepository';
  * @apiVersion 0.2.0
  * @apiParam {String} projectUrn
  * @apiParamExample Parameters Example
- *   projectUrn = urn:gh:knplabs/gaufrette
+ *   projectUrn = urn:cqa:gh:knplabs/gaufrette
  * @apiSuccess (200) {Object[]} pipelines
  * @apiSuccess (200) {String}   pipelines.projectUrn
  * @apiSuccess (200) {String}   pipelines.pattern

@@ -9,7 +9,7 @@ import {NoMatchingPipeline, HttpClientError} from '../errors';
  * @apiParam {String} projectUrn
  * @apiParam {String} branch
  * @apiParamExample Parameters Example
- *   projectUrn = urn:gh:knplabs/gaufrette
+ *   projectUrn = urn:cqa:gh:knplabs/gaufrette
  *   branch = master
  * @apiError (400) InvalidBranch
  * @apiError (404) NoMatchingPipelineFound

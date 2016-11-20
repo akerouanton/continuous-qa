@@ -8,7 +8,7 @@ import {BuildNotFoundError} from '../Error';
  * @apiVersion 0.1.0
  * @apiParam {String} buildUrn URN of the build
  * @apiParamExample Parameters Example
- *     buildUrn = urn:gh:knplabs/gaufrette:1
+ *     buildUrn = urn:cqa:gh:knplabs/gaufrette:1
  * @apiSuccess (200) {String}   projectUrn           Project URN
  * @apiSuccess (200) {String}   branch
  * @apiSuccess (200) {Number}   buildId
