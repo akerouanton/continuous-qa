@@ -5,9 +5,7 @@ import {GithubApiError} from '../errors';
 
 export function createDeployKey(token, repository) {
   logger.debug(`Creating deploy key for repository "${repository.name}".`);
-  const github = new GithubApi({Promise, timeout: 5000, headers: {'User-Agent': 'Local ContinuousQA'}});
-  github.authenticate({type: 'token', token});
-
+  const github = createGithubClient(token);
   const [owner, repo] =  repository.name.split('/');
 
   return github
@@ -24,4 +22,29 @@ export function createDeployKey(token, repository) {
       return repository;
     })
   ;
+}
+
+export function removeDeployKey(token, repository) {
+  logger.debug(`Removing deploy key for repository "${repository.name}".`);
+  const github = createGithubClient(token);
+  const [owner, repo] =  repository.name.split('/');
+
+  return github
+    .repos
+    .deleteKey({owner, repo, id: repository.deployKeyId})
+    .then((response) => {
+      if (response.meta.status !== '204 No Content') {
+        throw new GithubApiError(`/repos/${repository.name}/keys/${repository.deployKeyId}`, '');
+      }
+
+      logger.debug(`Deploy key "${repository.deployKeyId}" removed.`);
+      repository.deployKeyId = null;
+    })
+}
+
+function createGithubClient(token, timeout = 5000) {
+  const github = new GithubApi({Promise, timeout, headers: {'User-Agent': 'Local ContinuousQA'}});
+  github.authenticate({type: 'token', token});
+
+  return github;
 }

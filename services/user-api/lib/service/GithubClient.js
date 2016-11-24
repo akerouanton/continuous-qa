@@ -28,7 +28,7 @@ export function getUserRepositories(user) {
   user.repositories = null;
 
   return get('user/repos', token)
-    .where({visibility: 'public'})
+    .where()
     .request()
     .then(([response, repositories]) => {
       if (response.statusCode !== 200) {

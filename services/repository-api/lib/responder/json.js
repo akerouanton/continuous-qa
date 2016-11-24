@@ -8,8 +8,8 @@ export function repositories(res, repositories) {
   res.json(getRepositoriesRepresentation(repositories));
 }
 
-function getRepositoryRepresentation(repository) {
-  return {name: repository.name, type: repository.type, urn: repository.urn};
+function getRepositoryRepresentation({name, type, urn, enabled}) {
+  return {name, type, urn, enabled};
 }
 
 function getRepositoriesRepresentation(repositories) {

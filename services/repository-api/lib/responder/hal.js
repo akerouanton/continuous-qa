@@ -10,8 +10,8 @@ export function repositories(res, repositories) {
   res.json(getRepositoriesRepresentation(repositories));
 }
 
-function getRepositoryRepresentation(repository) {
-  return halson({name: repository.name, type: repository.type, urn: repository.urn})
+function getRepositoryRepresentation({name, type, urn, enabled}) {
+  return halson({name, type, urn, enabled})
     .addLink('self', `/repository/${encodeURIComponent(repository.urn)}`)
   ;
 }

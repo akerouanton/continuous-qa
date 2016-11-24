@@ -4,6 +4,7 @@ export const schema = mongoose.Schema({
   name: {type: String, required: true, unique: true},
   type: {type: String, required: true},
   urn: {type: String, required: true},
+  enabled: {type: Boolean, required: true},
   passphrase: {type: String},
   deployKeyId: {type: String}
 }, {strict: true});

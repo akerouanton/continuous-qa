@@ -28,14 +28,14 @@ import * as EventPublisher from '../service/EventPublisher';
  */
 export function handleRequest(exchange, req, res, next) {
   const {name, type} = req.body;
-  const repository = new Repository({name, type});
+  const repository = new Repository({name, type, enabled: true});
 
   KeyGenerator
     .generatePassphrase(repository)
     .then(KeyGenerator.generateKeyPair)
     .then(_.partial(GithubClient.createDeployKey, req.user.oauthToken))
     .then(VaultClient.storePrivateKey)
-    .then(Persister.save)
+    .then(Persister.upsert)
     .then((repository) => {
       const payload = {urn: repository.urn, name: repository.name, type: repository.type};
       const user = _.clone(req.user);
@@ -47,20 +47,15 @@ export function handleRequest(exchange, req, res, next) {
       return repository;
     })
     .then((repository) => {
+      const status = repository.isNew ? 201 : 200;
+
       res.location(`/repository/${encodeURIComponent(repository.urn)}`).format({
-        'application/json': () => JsonResponder.repository(res.status(201), repository),
-        'application/hal+json': () => HalResponder.repository(res.status(201), repository),
+        'application/json': () => JsonResponder.repository(res.status(status), repository),
+        'application/hal+json': () => HalResponder.repository(res.status(status), repository),
         'default': () => res.sendStatus(406)
       }).end();
     })
-    .catch((err) => {
-      logger.debug(err);
-      if (err.name === 'MongoError' && err.code === 11000) {
-        return next(new HttpClientError('NameAlreadyInUse'));
-      }
-
-      next(err);
-    })
+    .catch(next)
   ;
 }
 
@@ -75,17 +70,4 @@ export function validateRequest(req, res, next) {
   }
 
   next();
-}
-
-export function fetchOauthToken(req, res, next) {
-  logger.debug(`Fetching oauth token for user "${req.user.githubId}".`);
-
-  VaultClient
-    .retrieveUserToken(req.user.githubId)
-    .then((token) => {
-      req.user.oauthToken = token;
-      next();
-    })
-    .catch(err => next(err))
-  ;
 }
