@@ -1,4 +1,4 @@
-FROM node:6.5-slim
+FROM node:6.9-slim
 
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
@@ -8,8 +8,9 @@ RUN apt-get update && \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
-COPY ./package.json /usr/src/app/
-RUN npm install
+COPY ./package.json ./yarn.lock /usr/src/app/
+RUN npm install -g yarn && \
+    yarn install
 
 COPY ./ /usr/src/app/
 RUN mkdir /home/artifact-api \

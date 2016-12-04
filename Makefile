@@ -1,12 +1,12 @@
 .PHONY: build build-analyzers up stop halt ps logs introspect rm run reload restart drop-databases load-fixtures
-.PHONY: mongo-dump mongo-restore tests install
+.PHONY: mongo-dump mongo-restore tests install up-services stop-services restart-services
 
 COMPOSE_PROJECT_NAME?=continuousqa
 export $COMPOSE_PROJECT_NAME
 ENV=dev
 FIG=docker-compose -p $(COMPOSE_PROJECT_NAME) -f docker/$(ENV).yml -f docker/debug.yml -f plugins/${ENV}.yml -f services/${ENV}.yml
 ANALYZERS=$(shell ls analyzers/)
-SERVICES=artifact-api build-api log-api pipeline-api
+SERVICES=artifact-api build-api build-orchestrator front gh-hooks log-api pipeline-api plugin-api repository-api user-api docker docker-events docker-log-streamer
 
 comma:= ,
 empty:=
@@ -42,10 +42,18 @@ up:
 
 start: up
 
+up-services:
+	$(FIG) up --no-build -d $(SERVICES)
+
+start-services: up-services
+
 stop:
 	$(FIG) stop $(CONTAINER)
 
 halt: stop
+
+stop-services:
+	$(FIG) stop $(SERVICES)
 
 ps:
 	$(FIG) ps $(CONTAINER)
@@ -65,6 +73,8 @@ run:
 reload: stop up
 
 restart: reload
+
+restart-services: stop-services start-services
 
 ARTIFACT_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/artifact-api/.env)
 BUILD_API_DBNAME=$(shell awk -F= '/MONGO_DBNAME/ {print $$2}' services/build-api/.env)
@@ -101,6 +111,7 @@ tests:
 	cd services/log-api && NODE_ENV=test npm run tests
 	cd services/pipeline-api && NODE_ENV=test npm run tests
 
-install: build
-	for file in services/**/.env.dist; do (test -f $${file%.dist} || cp $$file $${file%.dist}); done
-	$(MAKE) up load-fixtures
+install:
+	for file in services/**/.env.dist plugins/runner-platform/**/.env.dist; do (test -f $${file%.dist} || cp $$file $${file%.dist}); done
+	for dir in services/**/ plugins/runner-platform/**/; do $$(cd $$dir && yarn install 1>&2 2>/dev/null); done
+	$(MAKE) build up load-fixtures

@@ -1,8 +1,9 @@
-FROM node:6.5.0-slim
+FROM node:6.9-slim
 
 WORKDIR /usr/src/app/
 COPY ./package.json /usr/src/app/
-RUN npm install
+RUN npm install -g yarn && \
+    yarn install
 
 COPY . /usr/src/app/
 RUN npm run-script generate-docs

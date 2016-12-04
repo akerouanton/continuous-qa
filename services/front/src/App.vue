@@ -1,11 +1,14 @@
 <template>
   <div id="app">
     <header>
-      <nav>
-        <div>
-          <ul>
-            <li v-if="!isConnected"><a href="/connect/github">Connect with Github</a></li>
-            <li v-if="isConnected"><router-link to="/">Disconnect</router-link></li>
+      <nav class="navbar navbar-default">
+        <div class="container">
+          <ul v-if="!isConnected">
+            <li><a href="/connect/github">Connect with Github</a></li>
+          </ul>
+          <ul v-if="isConnected" class="navbar-nav nav">
+            <li><router-link to="/dashboard">Dashboard</router-link></li>
+            <li><router-link to="/logout">Disconnect</router-link></li>
           </ul>
         </div>
       </nav>
@@ -22,6 +25,7 @@
 <script>
 import {mapGetters} from 'vuex'
 import {User} from './lib/resources'
+import {default as store} from './lib/store'
 
 export default {
   name: 'app',
@@ -31,12 +35,15 @@ export default {
     })
   },
   async created () {
-    const {status, body: profile} = await User.profile()
-    if (status !== 200) {
+    if (!store.state.user.connected && !store.state.user.connecting) {
       return
     }
 
-    const {name, repositories} = profile
+    const {headers, body: {name, repositories}} = await User.profile()
+    if (!store.state.user.connected) {
+      this.$store.commit('user.connect', {token: headers.map['X-Auth-Token'][0]})
+    }
+
     this.$store.commit('user.profile', {name, repositories})
   }
 }
@@ -44,17 +51,4 @@ export default {
 
 <style lang="less">
 @import '../node_modules/bootstrap/less/bootstrap.less';
-
-nav {
-  .navbar;
-  .navbar-default;
-
-  div {
-    .container;
-  }
-  ul {
-    .nav;
-    .navbar-nav;
-  }
-}
 </style>

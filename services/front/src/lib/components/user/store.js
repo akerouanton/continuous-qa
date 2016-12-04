@@ -1,13 +1,16 @@
+/* global localStorage */
 const state = {
-  connected: false,
-  token: null,
+  connected: localStorage.getItem('token') !== null,
+  connecting: localStorage.getItem('connecting'),
+  token: localStorage.getItem('token'),
   name: null,
   repositories: []
 }
 
 const getters = {
   'user.isConnected': (state) => state.connected,
-  'user.repositories': (state) => state.repositories
+  'user.isConnecting': (state) => state.connecting,
+  'user/repositories': (state) => state.repositories
 }
 
 const actions = {}
@@ -22,6 +25,8 @@ const mutations = {
 
     state.connected = true
     state.token = token
+
+    localStorage.setItem('token', token)
   },
   'user.profile': (state, {name, repositories}) => {
     if (!state.connected) {
@@ -30,6 +35,10 @@ const mutations = {
 
     state.name = name
     state.repositories = repositories
+  },
+  'user.connecting': (state) => {
+    state.connecting = true
+    localStorage.setItem('connecting', true)
   }
 }
 

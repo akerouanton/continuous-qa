@@ -2,6 +2,10 @@ mongo_uri: mongodb://localhost/user
 http_port: 8000
 secret: ThisTokenIsNotSoSecretChangIt!
 
+github:
+  timeout: 1000
+  user_agent: 'Local ContinuousQA'
+
 oauth:
   server:
     protocol: http

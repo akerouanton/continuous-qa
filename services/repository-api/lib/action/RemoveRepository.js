@@ -10,7 +10,6 @@ import {RepositoryNotFoundError, HttpClientError} from '../errors';
  * @apiGroup repository-api
  * @apiVersion 0.1.0
  * @apiParam {String} repositoryUrn
- * @apiSuccess (204)
  * @apiError (400) InvalidUrn
  */
 export async function handleRequest(req, res, next) {

@@ -1,6 +1,6 @@
 # Continuous QA
 
-Multi-tenant CI platform based on Docker, supporting pipelines and written in Javascript & PHP (using AMQP & ZMQ).
+Multi-tenant CI platform based on Docker, supporting pipelines and written in Javascript (using AMQP & ZMQ).
 
 Version 0.1 focus on API endpoints. For now best front-end is the apidoc (auto-generated/auto-updated as soon as you 
 start the stack).
@@ -15,6 +15,7 @@ Current features:
 **Requirements:**
   * Docker: >= 1.12
   * Docker Compose: >= 1.8
+  * yarn
 
 **Useful links:**
   * [API Documentation](http://localhost/docs/)
@@ -46,8 +47,7 @@ Directory structure:
 ```bash
 git clone https://github.com/NiR-/continuous-qa
 cd continuous-qa
-make install up # Wait a bit after the up & before the load-fixtures
-make load-fixtures
+make install
 ```
 
 Now, you can browse to `http://localhost/docs/` and start it.

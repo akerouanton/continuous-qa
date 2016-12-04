@@ -13,6 +13,7 @@ function getUserRepresentation(user) {
   ;
 }
 
-function getRepositoryRepresentation(repository) {
-  return repository;
+function getRepositoryRepresentation({name}) {
+
+  return {name, urn: `urn:cqa:gh:${name}`};
 }

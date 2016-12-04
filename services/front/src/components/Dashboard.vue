@@ -2,11 +2,7 @@
   <div class="dashboard">
     <ul>
       <li v-for="item in repositories">
-        <router-link
-          v-if="item.enabled"
-          v-bind:to="{name: 'repository', params: {repoUrn: item.urn}}"
-        >{{ item.name }}</router-link>
-        <p v-if="!item.enabled">{{ item.name }}</p>
+        <router-link v-bind:to="{name: 'repository', params: {repoUrn: item.urn}}">{{ item.name }}</router-link>
 
         <button v-if="!item.enabled" v-on:click="enableRepo(item)">Activer</button>
         <button v-if="item.enabled" v-on:click="disableRepo(item)">Désactiver</button>
@@ -17,38 +13,32 @@
 
 <script>
 import _ from 'underscore'
-import {User, Repository} from '../lib/resources'
+import {Repository} from '../lib/resources'
 
 export default {
   name: 'dashboard',
   data () {
-    return {repositories: []}
+    return {enabledRepos: []}
   },
   async created () {
-    const [enabledRepos, userRepos] = await Promise.all([
-      this.fetchRepositories(),
-      this.fetchUserRepositories()
-    ])
+    this.enabledRepos = await this.fetchEnabledRepositories()
+  },
+  computed: {
+    repositories () {
+      const repos = this.$store.getters['user/repositories']
 
-    const filteredRepos = userRepos.filter(
-      userRepo => _.find(enabledRepos, enabledRepo => userRepo.name === enabledRepo.name) === undefined
-    )
+      return repos.map((repo) => {
+        const enabled = _.find(this.enabledRepos, enabledRepo => repo.name === enabledRepo.name) !== undefined
 
-    this.repositories = [].concat(
-      _.map(enabledRepos, ({urn, name, enabled}) => { return { urn, name, enabled } }),
-      _.map(filteredRepos, ({name}) => { return { name, enabled: false } })
-    )
+        return {...repo, enabled}
+      })
+    }
   },
   methods: {
-    async fetchRepositories () {
+    async fetchEnabledRepositories () {
       const {status, body: list} = await Repository.list()
 
       return status !== 200 ? [] : list
-    },
-    async fetchUserRepositories () {
-      const {status, body: profile} = await User.profile()
-
-      return status !== 200 ? [] : profile.repositories
     },
     async enableRepo ({name}) {
       const {status, body: repo} = await Repository.add({type: 'github', name})
@@ -65,8 +55,7 @@ export default {
         return
       }
 
-      repo = body
-      console.log(repo)
+      repo.enabled = false
     }
   }
 }

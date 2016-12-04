@@ -1,19 +1,13 @@
 const logger = require('tracer').colorConsole();
-
-import Purest from 'purest';
-const github = new Purest({provider: 'github', promise: true});
-import {GithubApiError} from '../errors';
+const GithubApi = require('github');
+const config = require('config');
 
 export function getUserProfile(user) {
-  const {token} = user;
+  const github = new GithubApi({Promise, timeout: config.github.timeout, headers: {'User-Agent': config.github.user_agent}});
+  github.authenticate({type: 'token', token: user.token});
 
-  return get('user', token)
-    .request()
-    .then(([response, profile]) => {
-      if (response.statusCode !== 200) {
-        throw new GithubApiError('user', response.body.message);
-      }
-
+  return github.users.get({})
+    .then((profile) => {
       user.githubId = profile.id;
       user.name = profile.login;
       user.fullname = profile.name;
@@ -23,32 +17,22 @@ export function getUserProfile(user) {
   ;
 }
 
-export function getUserRepositories(user) {
-  const {token} = user;
+export async function getUserRepositories(user) {
   user.repositories = null;
 
-  return get('user/repos', token)
-    .where()
-    .request()
-    .then(([response, repositories]) => {
-      if (response.statusCode !== 200) {
-        throw new GithubApiError('user/repos', response.body.message);
-      }
+  const headers = {'User-Agent': config.github.user_agent};
+  const github = new GithubApi({Promise, timeout: config.github.timeout, headers});
+  github.authenticate({type: 'token', token: user.token});
 
-      user.repositories = filterForkRepositories(repositories);
+  let repositories = await github.repos.getAll({});
+  user.repositories = filterForkRepositories(repositories);
 
-      return user;
-    })
-  ;
-}
+  while (github.hasNextPage(repositories)) {
+    repositories = await github.getNextPage(repositories, headers);
+    user.repositories = [].concat(user.repositories, filterForkRepositories(repositories));
+  }
 
-function get(path, token) {
-  return github
-    .query()
-    .options({"headers": {"User-Agent": "Local ContinuousQA"}})
-    .get(path)
-    .auth(token)
-  ;
+  return user;
 }
 
 function filterForkRepositories(repositories) {

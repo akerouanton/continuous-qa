@@ -5,12 +5,12 @@ Vue.use(VueRouter)
 
 import Dashboard from '../components/Dashboard'
 import Repository from '../components/Repository.vue'
+import App from '../App.vue'
 
 const router = new VueRouter({routes: [
+  { path: '/logout', component: App },
   { path: '/dashboard', component: Dashboard },
   { path: '/repository/:repoUrn', name: 'repository', component: Repository }
-  /* { path: '/signin', component: Signin },
-   { path: '/connected', component: Connected } */
 ]})
 
 export default router

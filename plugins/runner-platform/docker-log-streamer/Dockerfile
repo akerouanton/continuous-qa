@@ -1,4 +1,4 @@
-FROM node:6.5-slim
+FROM node:6.9-slim
 
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
@@ -9,7 +9,8 @@ RUN apt-get update && \
 
 WORKDIR /usr/src/app
 COPY ./package.json /usr/src/app/
-RUN npm install
+RUN npm install -g yarn && \
+    yarn install
 
 COPY ./ /usr/src/app/
 

@@ -7,13 +7,16 @@ import {GithubApiError, HttpServerError} from '../errors';
 /**
  * @api {get} /profile Get user profile
  * @apiName Profile
+ * @apiParam {Integer} githubId
  * @apiGroup user-api
  * @apiVersion 0.2.0
- * @apiError (401)
+ * @apiError (401) Unauthorized
  */
 export function handle(req, res, next) {
+  const githubId = req.user !== undefined ? req.user.githubId : req.param.githubId;
+
   UserRepository
-    .getByGithubId(req.user.githubId)
+    .getByGithubId(githubId)
     .then(VaultClient.retrieveUserToken)
     .then(GithubClient.getUserProfile)
     .then(GithubClient.getUserRepositories)
